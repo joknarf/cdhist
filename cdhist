@@ -15,17 +15,17 @@
 #   CDNBDIRS      : default to 10 (nbdirs to display)
 #
 #================================================================
+unalias cd
 type -p tac >/dev/null || alias tac='tail -r'
-(command cd 2>/dev/null) && builtincd='command cd' || builtincd='builtin cd'
-[ "$(uname -s)" = Darwin ] && { sed_opt="''"; builtincd='builtin cd'; } || sed_opt=""
+[ "$(uname -s)" = Darwin ] && cd_sed_opt="''" || cd_sed_opt=""
 
 # change directory and remove/append PWD to CDHISTFILE
 cdpush() {
   typeset cdhf=${CDHISTFILE:-~/.cd_history}
   [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
-  $builtincd "$@" || return $?
+  cd "$@" || return $?
   touch $cdhf
-  sed -i $sed_opt "\|^$PWD$|d" $cdhf
+  sed -i $cd_sed_opt "\|^$PWD$|d" $cdhf
   echo "$PWD" >>$cdhf
 }
 
