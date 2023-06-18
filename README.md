@@ -16,6 +16,8 @@ $ cd --
 => display current history / choose dir to change
 $ cd -- <pat>
 => search pattern <pat> in current history, change to dir if unique, display / chose dir either
+$ cd - <pat>
+=> search pattern <pat> in cd history, change to dir first matched
 ```
 instead of `cd -- <opts>` you can use `cdd <opts>`
 
