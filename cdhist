@@ -19,7 +19,6 @@ unalias cd 2>/dev/null
 type -p tac >/dev/null || alias tac='tail -r'
 [ "$(uname -s)" = Darwin ] && cd_sed_opt="''" || cd_sed_opt=""
 
-# ksh unalias cd fix through source funtion
 cdpushf=$(cat - <<'EOF'
 # change directory and remove/append PWD to CDHISTFILE
 cdpush() {
@@ -32,7 +31,7 @@ cdpush() {
 }
 EOF
 )
-# need to declare func using eval for ksh unalias issue
+# need to declare func using eval for ksh unalias cd issue
 eval "$cdpushf" 
 unset cdpushf
 
