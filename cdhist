@@ -45,7 +45,7 @@ cdhist() {
     dirs=$(tac $cdhf |awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;print $0}' gr="$gr" pwd="$PWD" nb=$nb)
     while true
     do
-        [[ $dirs != *$'\n'* ]] && { cdpush "$dirs" ; return $?; }
+        [[ "$dirs" != *$'\n'* ]] && { cdpush "$dirs" ; return $?; }
         echo "$dirs" |sed -e "s|^$HOME|~|" | grep --color=auto -n ".*"
         printf "cd: "
         read n
