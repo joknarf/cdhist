@@ -17,6 +17,7 @@
 #================================================================
 # reverse cat
 type -p tac >/dev/null || alias tac='tail -r'
+type -p builtin >/dev/null || alias builtin=command # ash
 
 # change directory and remove/append PWD to CDHISTFILE
 cdpush() {
@@ -32,8 +33,7 @@ cdpush() {
 # cdhist -a : whole history
 # cdhist [-a] <pattern> [<pat>...]: display dirs matching pattern/cd to dir if unique found
 cdhist() {
-  typeset gr=. nb=${CDNBDIRS:-10} dirs cdhf=${CDHISTFILE:-~/.cd_history}
-  typeset -i n
+  typeset gr=. nb=${CDNBDIRS:-10} dirs cdhf=${CDHISTFILE:-~/.cd_history} n
   [ "$1" = -a ] && nb=-1 && shift
   [ "$1" ] && gr=$(awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print $0}' "$@")
   dirs=$(tac $cdhf |awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;print $0}' gr="$gr" pwd="$PWD" nb=$nb)
@@ -41,7 +41,7 @@ cdhist() {
   echo "$dirs" | grep --color=auto -n '.'
   printf "cd: "
   read n
-  [ $n = 0 ] && return
+  [[ $n = [1-9]* ]] || return
   cdpush "$(echo "$dirs" |sed -n "$n{p;q}")"
 }
 
