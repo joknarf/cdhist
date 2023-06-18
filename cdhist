@@ -18,6 +18,7 @@
 type whence >/dev/null || alias whence='type -p'
 whence tac >/dev/null || alias tac='tail -r'
 whence builtin >/dev/null || alias builtin=command # ash
+[ "$(uname -s)" = Darwin ] && sed_opt="''" || sed_opt=""
 
 # change directory and remove/append PWD to CDHISTFILE
 cdpush() {
@@ -25,7 +26,7 @@ cdpush() {
   [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
   builtin cd "$@" || return $?
   touch $cdhf
-  sed -i '' "\|^$PWD$|d" $cdhf
+  sed -i $sed_opt "\|^$PWD$|d" $cdhf
   echo "$PWD" >>$cdhf
 }
 
