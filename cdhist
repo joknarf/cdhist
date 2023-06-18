@@ -18,13 +18,14 @@
 #
 #================================================================
 unalias cd 2>/dev/null
+type local >/dev/null 2>/dev/null || alias local=typeset
 type -p tac >/dev/null || alias tac='tail -r'
 [ "$(uname -s)" = Darwin ] && cd_sed_opt="''" || cd_sed_opt=""
 
 cdpushf=$(cat - <<'EOF'
 # change directory and remove/append PWD to CDHISTFILE
-cdpush() {
-    typeset cdhf=${CDHISTFILE:-~/.cd_history}
+function cdpush {
+    local cdhf=${CDHISTFILE:-~/.cd_history}
     [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
     [ "$1" = "-" ] && [ "$2" ] && { cdhist "$@"; return $?; }
     cd "$@" || return $?
@@ -41,8 +42,8 @@ unset cdpushf
 # cdhist    : Display CDNBDIRS history
 # cdhist -a : whole history
 # cdhist [-a] <pattern> [<pat>...]: display dirs matching pattern/cd to dir if unique found
-cdhist() {
-    typeset gr=. nb=${CDNBDIRS:-10} dirs cdhf=${CDHISTFILE:-~/.cd_history} n first=''
+function cdhist {
+    local gr=. nb=${CDNBDIRS:-10} dirs cdhf=${CDHISTFILE:-~/.cd_history} n first=''
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
     [ "$1" ] && gr=$(awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
