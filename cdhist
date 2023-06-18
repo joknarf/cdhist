@@ -28,6 +28,7 @@ function cdpush {
     local cdhf=${CDHISTFILE:-~/.cd_history}
     [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
     [ "$1" = "-" ] && [ "$2" ] && { cdhist "$@"; return $?; }
+    [[ "$1" = ~* ]]  && set -- "$HOME${1#\~}"
     cd "$@" || return $?
     touch $cdhf
     sed -i $cd_sed_opt "\|^$PWD$|d" $cdhf
@@ -43,16 +44,17 @@ unset cdpushf
 # cdhist -a : whole history
 # cdhist [-a] <pattern> [<pat>...]: display dirs matching pattern/cd to dir if unique found
 function cdhist {
-    local gr=. nb=${CDNBDIRS:-10} dirs cdhf=${CDHISTFILE:-~/.cd_history} n first=''
+    local gr=. nb=${CDNBDIRS:-10} dirs cdhf=${CDHISTFILE:-~/.cd_history} n first='' awk=awk
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
+    [ -x /bin/nawk ] && awk=nawk
     [ "$1" ] && gr=$(awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
-    dirs=$(tac $cdhf |awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb)
+    dirs=$(tac $cdhf |$awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME)
     while true
     do
         [ "$dirs" ] || return 1
         [[ "$dirs" != *$'\n'* ]] && { cdpush "$dirs" ; return $?; }
-        echo "$dirs" |sed -e "s|^$HOME|~|" | grep --color=auto -n ".*"
+        echo "$dirs"| grep --color=auto -n ".*"
         printf "cd: "
         read n
         [ "$n" ] || break
