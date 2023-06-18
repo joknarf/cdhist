@@ -1,5 +1,6 @@
 # cdhist
-cd history (bash / ksh / zsh)
+cd history (bash / ksh / zsh / ash)
+(compatible macos / debian / centos ...)
 
 simple cd history, alias builtin cd to add cd history
 
