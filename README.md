@@ -47,7 +47,8 @@ cd: prereq
 1:~/puppet/modules/os_prereq/manifests
 2:~/puppet/modules/os_prereq/hieradata
 cd: hiera
-user@host:~/puppet/modules/os_prereq/hieradata $ 
+user@host:~/puppet/modules/os_prereq/hieradata $ cd - manif
+user@host:~/puppet/modules/os_prereq/manifests $
 ```
 
 # environment variables
