@@ -22,12 +22,12 @@ type -p tac >/dev/null || alias tac='tail -r'
 cdpushf=$(cat - <<'EOF'
 # change directory and remove/append PWD to CDHISTFILE
 cdpush() {
-  typeset cdhf=${CDHISTFILE:-~/.cd_history}
-  [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
-  cd "$@" || return $?
-  touch $cdhf
-  sed -i $cd_sed_opt "\|^$PWD$|d" $cdhf
-  echo "$PWD" >>$cdhf
+    typeset cdhf=${CDHISTFILE:-~/.cd_history}
+    [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
+    cd "$@" || return $?
+    touch $cdhf
+    sed -i $cd_sed_opt "\|^$PWD$|d" $cdhf
+    echo "$PWD" >>$cdhf
 }
 EOF
 )
@@ -39,16 +39,20 @@ unset cdpushf
 # cdhist -a : whole history
 # cdhist [-a] <pattern> [<pat>...]: display dirs matching pattern/cd to dir if unique found
 cdhist() {
-  typeset gr=. nb=${CDNBDIRS:-10} dirs cdhf=${CDHISTFILE:-~/.cd_history} n
-  [ "$1" = -a ] && nb=-1 && shift
-  [ "$1" ] && gr=$(awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print $0}' "$@")
-  dirs=$(tac $cdhf |awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;print $0}' gr="$gr" pwd="$PWD" nb=$nb)
-  [ "$1" ] && [ $(wc -l <<<"$dirs") = 1 ] && { cdpush "$dirs" ; return $?; }
-  sed -e "s|^$HOME|~|" <<<"$dirs" | grep --color=auto -n '.*'
-  printf "cd: "
-  read n
-  [[ $n = [1-9]* ]] || return
-  cdpush "$(awk NR==$n <<<"$dirs")"
+    typeset gr=. nb=${CDNBDIRS:-10} dirs cdhf=${CDHISTFILE:-~/.cd_history} n=
+    [ "$1" = -a ] && nb=-1 && shift
+    [ "$1" ] && gr=$(awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print $0}' "$@")
+    dirs=$(tac $cdhf |awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;print $0}' gr="$gr" pwd="$PWD" nb=$nb)
+    while true
+    do
+        [ $(wc -l <<<"$dirs") = 1 ] && { cdpush "$dirs" ; return $?; }
+        sed -e "s|^$HOME|~|" <<<"$dirs" | grep --color=auto -n ".*"
+        printf "cd: "
+        read n
+        [ "$n" ] || break
+        [[ $n = [1-9]* ]] && { cdpush "$(awk NR==$n <<<"$dirs")"; return $?; }
+        dirs=$(egrep "$n" <<<$dirs)
+    done
 }
 
 alias cd=cdpush
