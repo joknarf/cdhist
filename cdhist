@@ -19,6 +19,8 @@ unalias cd
 type -p tac >/dev/null || alias tac='tail -r'
 [ "$(uname -s)" = Darwin ] && cd_sed_opt="''" || cd_sed_opt=""
 
+# ksh unalias cd fix through source funtion
+. <(cat - <<'EOF'
 # change directory and remove/append PWD to CDHISTFILE
 cdpush() {
   typeset cdhf=${CDHISTFILE:-~/.cd_history}
@@ -28,6 +30,8 @@ cdpush() {
   sed -i $cd_sed_opt "\|^$PWD$|d" $cdhf
   echo "$PWD" >>$cdhf
 }
+EOF
+)
 
 # cdhist    : Display CDNBDIRS history
 # cdhist -a : whole history
