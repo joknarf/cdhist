@@ -43,7 +43,7 @@ user@host:~/puppet/modules/apache/hieradata $ cdd
 3:~/puppet/modules/os_prereq/hieradata
 cd: prereq
 1:~/puppet/modules/os_prereq/manifests
-3:~/puppet/modules/os_prereq/hieradata
+2:~/puppet/modules/os_prereq/hieradata
 cd: hiera
 user@host:~/puppet/modules/os_prereq/hieradata $ 
 ```
