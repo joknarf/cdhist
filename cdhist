@@ -15,9 +15,9 @@
 #   CDNBDIRS      : default to 10 (nbdirs to display)
 #
 #================================================================
-# reverse cat
-type -p tac >/dev/null || alias tac='tail -r'
-type -p builtin >/dev/null || alias builtin=command # ash
+type whence >/dev/null || alias whence='type -p'
+whence tac >/dev/null || alias tac='tail -r'
+whence builtin >/dev/null || alias builtin=command # ash
 
 # change directory and remove/append PWD to CDHISTFILE
 cdpush() {
@@ -25,7 +25,7 @@ cdpush() {
   [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
   builtin cd "$@" || return $?
   touch $cdhf
-  sed -i "\|^$PWD$|d" $cdhf
+  sed -i '' "\|^$PWD$|d" $cdhf
   echo "$PWD" >>$cdhf
 }
 
@@ -38,11 +38,11 @@ cdhist() {
   [ "$1" ] && gr=$(awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print $0}' "$@")
   dirs=$(tac $cdhf |awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;print $0}' gr="$gr" pwd="$PWD" nb=$nb)
   [ "$1" ] && [ $(echo "$dirs" |wc -l) = 1 ] && { cdpush "$dirs" ; return $?; }
-  echo "$dirs" | grep --color=auto -n '.'
+  echo "$dirs" | grep --color=auto -n '.*'
   printf "cd: "
   read n
   [[ $n = [1-9]* ]] || return
-  cdpush "$(echo "$dirs" |sed -n "$n{p;q}")"
+  cdpush "$(echo "$dirs" |awk NR==$n)"
 }
 
 alias cd=cdpush
