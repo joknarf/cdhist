@@ -6,6 +6,8 @@ simple cd history, alias builtin cd to add cd history
 
 rapidily swich to already visited directories
 
+![cdhist](https://github.com/joknarf/cdhist/assets/10117818/694e021e-e49e-4f93-8ede-228fc179e996)
+
 # usage
 
 ```shell
