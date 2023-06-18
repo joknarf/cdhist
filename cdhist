@@ -43,12 +43,12 @@ cdhist() {
   [ "$1" = -a ] && nb=-1 && shift
   [ "$1" ] && gr=$(awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print $0}' "$@")
   dirs=$(tac $cdhf |awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;print $0}' gr="$gr" pwd="$PWD" nb=$nb)
-  [ "$1" ] && [ $(echo "$dirs" |wc -l) = 1 ] && { cdpush "$dirs" ; return $?; }
-  echo "$dirs" | grep --color=auto -n '.*'
+  [ "$1" ] && [ $(wc -l <<<"$dirs") = 1 ] && { cdpush "$dirs" ; return $?; }
+  sed -e "s|^$HOME|~|" <<<"$dirs" | grep --color=auto -n '.*'
   printf "cd: "
   read n
   [[ $n = [1-9]* ]] || return
-  cdpush "$(echo "$dirs" |awk NR==$n)"
+  cdpush "$(awk NR==$n <<<"$dirs")"
 }
 
 alias cd=cdpush
