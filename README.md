@@ -27,17 +27,25 @@ user@host:~/puppet/modules/apache/manifests $ cd ../hieradata
 user@host:~/puppet/modules/apache/hieradata $ cd ../../os_prereq/manifests
 user@host:~/puppet/modules/os_prereq/manifests $ cd ../hieradata
 user@host:~/puppet/modules/os_prereq/hierdata $ cd --
-1:/home/user/puppet/os_prereq/manifests
-2:/home/user/puppet/apache/hieradata
-3:/home/user/puppet/apache/manifests
+1:~/puppet/os_prereq/manifests
+2:~/puppet/apache/hieradata
+3:~/puppet/apache/manifests
 cd: 2
 user@host:~/puppet/modules/apache/hieradata $ cd -- manif
-1:/home/user/puppet/os_prereq/manifests
-2:/home/user/puppet/apache/manifests
+1:~/puppet/os_prereq/manifests
+2:~/puppet/apache/manifests
 cd :
 user@host:~/puppet/modules/apache/hieradata $ cd -- os_pr /man
 user@host:~/puppet/modules/os_prereq/manifests $ cdd apa hiera
-user@host:~/puppet/modules/apache/hieradata $
+user@host:~/puppet/modules/apache/hieradata $ cdd
+1:~/puppet/modules/os_prereq/manifests
+2:~/puppet/modules/apache/hieradata
+3:~/puppet/modules/os_prereq/hieradata
+cd: prereq
+1:~/puppet/modules/os_prereq/manifests
+3:~/puppet/modules/os_prereq/hieradata
+cd: hiera
+user@host:~/puppet/modules/os_prereq/hieradata $ 
 ```
 
 # environment variables
