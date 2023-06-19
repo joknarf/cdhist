@@ -19,8 +19,6 @@
 #================================================================
 unalias cd 2>/dev/null
 type local >/dev/null 2>/dev/null || alias local=typeset
-cd_builtin=builtin
-[ "$KSH_VERSION" ] && cd_builtin=command
 touch ${CDHISTFILE:=~/.cd_history}
 
 # change directory and remove/append PWD to CDHISTFILE
@@ -29,7 +27,7 @@ function cdpush {
     [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
     [ "$1" = "-" ] && [ "$2" ] && { cdhist "$@"; return $?; }
     [[ "$1" = ~* ]]  && set -- "$HOME${1#\~}"
-    $cd_builtin cd "$@" || return $?
+    \cd "$@" || return $?
     echo "$PWD" >$cdhf.tmp
     grep -v "^$PWD$" $cdhf >>$cdhf.tmp
     mv $cdhf.tmp $cdhf
