@@ -22,7 +22,7 @@ $ cd - <pat>
 => search pattern <pat> in cd history, change to dir first matched
 ```
 
-instead of `cd -- <opts>` you can use `cd-- <opts>`
+instead of `cd -- <opts>` you can use `cd-- <opts>`  
 instead of `cd - <opts>` you can use `cd- <opts>`
 
 
