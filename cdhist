@@ -28,9 +28,10 @@ function cdpush {
     [ "$1" = "-" ] && [ "$2" ] && { cdhist "$@"; return $?; }
     [[ "$1" = ~* ]]  && set -- "$HOME${1#\~}"
     \cd "$@" || return $?
-    echo "$PWD" >$cdhf.tmp
-    grep -v "^$PWD$" $cdhf >>$cdhf.tmp
-    mv $cdhf.tmp $cdhf
+    echo "$PWD" >"$cdhf.tmp"
+    grep -v "^$PWD$" "$cdhf" >>"$cdhf.tmp"
+    [ -s "$cdhf.tmp" ] && mv "$cdhf.tmp" "$cdhf"
+    return 0
 }
 
 # cdhist    : Display CDNBDIRS history
