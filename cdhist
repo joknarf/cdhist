@@ -21,6 +21,7 @@ unalias cd 2>/dev/null
 type local >/dev/null 2>/dev/null || alias local=typeset
 type -p tac >/dev/null || alias tac='tail -r'
 [ "$(uname -s)" = Darwin ] && cd_sed_opt="''" || cd_sed_opt=""
+touch ${CDHISTFILE:=~/.cd_history}
 
 cdpushf=$(cat - <<'EOF'
 # change directory and remove/append PWD to CDHISTFILE
@@ -30,7 +31,6 @@ function cdpush {
     [ "$1" = "-" ] && [ "$2" ] && { cdhist "$@"; return $?; }
     [[ "$1" = ~* ]]  && set -- "$HOME${1#\~}"
     cd "$@" || return $?
-    touch $cdhf
     sed -i $cd_sed_opt "\|^$PWD$|d" $cdhf
     echo "$PWD" >>$cdhf
 }
