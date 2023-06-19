@@ -19,26 +19,21 @@
 #================================================================
 unalias cd 2>/dev/null
 type local >/dev/null 2>/dev/null || alias local=typeset
-type -p tac >/dev/null || alias tac='tail -r'
-[ "$(uname -s)" = Darwin ] && cd_sed_opt="''" || cd_sed_opt=""
+cd_builtin=builtin
+[ "$KSH_VERSION" ] && cd_builtin=command
 touch ${CDHISTFILE:=~/.cd_history}
 
-cdpushf=$(cat - <<'EOF'
 # change directory and remove/append PWD to CDHISTFILE
 function cdpush {
     local cdhf=${CDHISTFILE:-~/.cd_history}
     [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
     [ "$1" = "-" ] && [ "$2" ] && { cdhist "$@"; return $?; }
     [[ "$1" = ~* ]]  && set -- "$HOME${1#\~}"
-    cd "$@" || return $?
-    sed -i $cd_sed_opt "\|^$PWD$|d" $cdhf
-    echo "$PWD" >>$cdhf
+    $cd_builtin cd "$@" || return $?
+    echo "$PWD" >$cdhf.tmp
+    grep -v "^$PWD$" $cdhf >>$cdhf.tmp
+    mv $cdhf.tmp $cdhf
 }
-EOF
-)
-# need to declare func using eval for ksh unalias cd issue
-eval "$cdpushf" 
-unset cdpushf
 
 # cdhist    : Display CDNBDIRS history
 # cdhist -a : whole history
@@ -48,8 +43,8 @@ function cdhist {
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
     [ -x /bin/nawk ] && awk=nawk
-    [ "$1" ] && gr=$(awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
-    dirs=$(tac $cdhf |$awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME)
+    [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
+    dirs=$($awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)
     while true
     do
         [ "$dirs" ] || return 1
@@ -64,4 +59,5 @@ function cdhist {
 }
 
 alias cd=cdpush
-alias cdd=cdhist
+alias cd-='cd -'
+alias cd--=cdhist
