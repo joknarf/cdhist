@@ -49,7 +49,7 @@ function cdhist {
     do
         [ "$dirs" ] || return 1
         [[ "$dirs" != *$'\n'* ]] && { cdpush "$dirs" ; return $?; }
-        echo "$dirs"| GREP_COLORS='ms=01;34' grep --color=auto -n ".*"
+        echo "$dirs"| GREP_COLORS='ms=01;34' GREP_COLOR='1;34;49' grep --color=auto -n ".*"
         printf "cd: "
         read n
         [ "$n" ] || break
