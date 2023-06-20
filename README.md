@@ -3,14 +3,15 @@ cd history (bash / ksh / zsh / ash)
 (compatible macos / debian / centos ...)
 
 simple cd history, alias builtin cd to add cd history
-
 rapidily swich to already visited directories
+
+display / choose subdirectories of cwd
 
 ![cdhist](https://github.com/joknarf/cdhist/assets/10117818/694e021e-e49e-4f93-8ede-228fc179e996)
 
 # usage
 
-```shell
+```
 $ . ./cdhist
 $ cd <dir>
 => change to <dir> and add <dir> to $CDHISTFILE
@@ -20,10 +21,14 @@ $ cd -- <pat>
 => search pattern <pat> in current history, change to dir if unique, display / chose dir either
 $ cd - <pat>
 => search pattern <pat> in cd history, change to dir first matched
+$ cd + [<pat>]
+=> display immediate subdirectories of cwd, search / choose dir to change (except dot dirs, like .git/*)
+$ cd ++ [<pat]
+=> display subdirectories until depth 4, search / choose dir to change (except dot dirs, like .git/*)
 ```
 
-instead of `cd -- <opts>` you can use `cd-- <opts>`  
-instead of `cd - <opts>` you can use `cd- <opts>`
+
+`cd - <opts>` `cd -- <opts>` `cd + <opts>` `cd ++ <opts>` are aliases to `cd- cd-- cd+ cd++`
 
 
 ## example
@@ -53,7 +58,13 @@ cd: prereq
 2:~/puppet/modules/os_prereq/hieradata
 cd: hiera
 user@host:~/puppet/modules/os_prereq/hieradata $ cd- manif
-user@host:~/puppet/modules/os_prereq/manifests $
+user@host:~/puppet/modules/os_prereq/manifests $ cd- modules$
+user@host:~/puppet/modules $ cd++
+1. ./apache/hieradata
+2. ./apache/manifests
+3. ./os_prereq/hieradata
+4. ./os_prereq/manifests
+cd: 
 ```
 
 # environment variables
