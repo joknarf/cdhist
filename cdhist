@@ -1,7 +1,9 @@
 #===============================================================
-# simple dir history for bash/ksh/zsh:
+# cdhist:
+#   shell `cd`` command extensions for bash/ksh/zsh/ash
+#   dir history / subdir explore
 #   . ./cdhist
-# aliases cd to cdpush:
+#   
 #   cd <dir> : change dir and push directory to CDHISTORYFILE
 #   cd -- [-a] [<pat> ...] : display/choose in dir history
 #     -a    : all dir history (CDNBDIRS without -a)
@@ -10,13 +12,16 @@
 #             multiple pattern will grep <pat>.*<pat>...
 #   cd - [-a] <pat> [<pat>...] : search and cd to first dir matching 
 #             <pat> in history
-#   `cd --` can be replaced by `cdd` command
+#   cd + [<pat>...] : display choose subdirs or cwd
+#   cd ++ [<pat>...] : displau choose subdirs until depth 4
 #
+#   aliases `cd-` `cd--` `cd+` `cd++` instead of `cd <sign>` commands
+# 
 # environment vars:
 #   CDHISTORYFILE : default to ~/.cd_history
-#   CDNBDIRS      : default to 10 (nbdirs to display)
-#
+#   CDNBDIRS      : default to 10 (nbdir history to display)
 #================================================================
+
 unalias cd 2>/dev/null
 type local >/dev/null 2>/dev/null || alias local=typeset
 touch ${CDHISTFILE:=~/.cd_history}
@@ -24,9 +29,13 @@ touch ${CDHISTFILE:=~/.cd_history}
 # change directory and updpate CDHISTFILE
 function cdpush {
     local cdhf=${CDHISTFILE:-~/.cd_history}
-    [ "$1" = "--" ] && shift && { cdhist "$@"; return $?; }
-    [ "$1" = "-" ] && [ "$2" ] && { cdhist "$@"; return $?; }
-    [[ "$1" = ~* ]]  && set -- "$HOME${1#\~}"
+    case "$1" in 
+        --) shift; cdhist "$@"; return $?;;
+        -)  [ "$2" ] && { cdhist "$@"; return $?; };;
+        +)  shift; cdsub 1 "$@"; return $?;;
+        ++) shift; cdsub 4 "$@"; return $?;;
+        ~*) set -- "$HOME${1#\~}";;
+    esac
     \cd "$@" || return $?
     echo "$PWD" >"$cdhf.tmp"
     grep -v "^$PWD$" "$cdhf" >>"$cdhf.tmp"
@@ -65,6 +74,8 @@ function cdhist {
     cdselect "$dirs"
 }
 
+# display/change to subdirs of cwd
+# cdsub <depth> [<pat> ...]
 function cdsub {
     local depth="$1" gr=. dirs awk=awk
     shift
