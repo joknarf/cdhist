@@ -23,12 +23,12 @@
 #================================================================
 
 unalias cd 2>/dev/null
-type local >/dev/null 2>/dev/null || alias local=typeset
+type typeset >/dev/null 2>/dev/null || alias typeset=local # ash
 touch ${CDHISTFILE:=~/.cd_history}
 
 # change directory and updpate CDHISTFILE
 function cdpush {
-    local cdhf=${CDHISTFILE:-~/.cd_history}
+    typeset cdhf=${CDHISTFILE:-~/.cd_history}
     case "$1" in 
         --) shift; cdhist "$@"; return $?;;
         -)  [ "$2" ] && { cdhist "$@"; return $?; };;
@@ -45,7 +45,7 @@ function cdpush {
 
 function cdselect
 {
-    local dirs="$1"
+    typeset dirs="$1"
     while true
     do
         [ "$dirs" ] || return 1
@@ -65,7 +65,7 @@ function cdselect
 # cdhist -a : whole history
 # cdhist [-a] <pattern> [<pat>...]: display dirs matching pattern/cd to dir if unique found
 function cdhist {
-    local gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk
+    typeset gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
     [ -x /bin/nawk ] && awk=nawk
@@ -76,7 +76,7 @@ function cdhist {
 # display/change to subdirs of cwd
 # cdsub <depth> [<pat> ...]
 function cdsub {
-    local depth="$1" gr=. awk=awk
+    typeset depth="$1" gr=. awk=awk
     shift
     [ -x /bin/nawk ] && awk=nawk
     [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
