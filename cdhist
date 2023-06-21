@@ -65,24 +65,22 @@ function cdselect
 # cdhist -a : whole history
 # cdhist [-a] <pattern> [<pat>...]: display dirs matching pattern/cd to dir if unique found
 function cdhist {
-    local gr=. nb=${CDNBDIRS:-10} dirs cdhf=${CDHISTFILE:-~/.cd_history} resp first='' awk=awk
+    local gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
     [ -x /bin/nawk ] && awk=nawk
     [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
-    dirs=$($awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)
-    cdselect "$dirs"
+    cdselect "$($awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)"
 }
 
 # display/change to subdirs of cwd
 # cdsub <depth> [<pat> ...]
 function cdsub {
-    local depth="$1" gr=. dirs awk=awk
+    local depth="$1" gr=. awk=awk
     shift
     [ -x /bin/nawk ] && awk=nawk
     [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
-    dirs=$(find . -xdev -mindepth 1 -maxdepth $depth -name '.?*' -prune -o -type d -print |egrep "$gr")
-    cdselect "$dirs"
+    cdselect "$(find . -xdev -mindepth 1 -maxdepth $depth -name '.?*' -prune -o -type d -print |egrep "$gr")"
 }
 
 alias cd=cdpush
