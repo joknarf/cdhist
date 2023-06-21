@@ -45,7 +45,7 @@ function cdpush {
 
 function cdselect
 {
-    typeset dirs="$1"
+    typeset dirs="$1" resp
     while true
     do
         [ "$dirs" ] || return 1
