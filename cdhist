@@ -50,12 +50,12 @@ function cdselect
     do
         [ "$dirs" ] || return 1
         [[ "$dirs" != *$'\n'* ]] && { cdpush "$dirs" ; return $?; }
-        echo "$dirs"| GREP_COLORS='ms=01;34' GREP_COLOR='1;34;49' grep --color=auto -n ".*"
+        echo "$dirs"| GREP_COLORS='ms=01;34' GREP_COLOR='1;34;49' grep --color=auto -n ".*" 2>/dev/null
         printf "cd: "
         read resp
         case "$resp" in
             '')       break;;
-            *[!0-9]*) dirs=$(echo "$dirs" |egrep "$resp");;
+            *[!0-9]*) dirs=$(echo "$dirs" |egrep "$resp" 2>/dev/null);;
             *)        cdpush "$(echo "$dirs" |awk NR==$resp)"; return $?;;
         esac
     done
@@ -80,7 +80,7 @@ function cdsub {
     shift
     [ -x /bin/nawk ] && awk=nawk
     [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
-    cdselect "$(find . -xdev -mindepth 1 -maxdepth $depth -name '.?*' -prune -o -type d -print |egrep "$gr")"
+    cdselect "$(find . -xdev -mindepth 1 -maxdepth $depth -name '.?*' -prune -o -type d -print |egrep "$gr" 2>/dev/null)"
 }
 
 alias cd=cdpush
