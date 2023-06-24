@@ -20,6 +20,7 @@
 # environment vars:
 #   CDHISTORYFILE : default to ~/.cd_history
 #   CDNBDIRS      : default to 10 (nbdir history to display)
+#   CDINITDIRS    : add directories if $CDHISTORYFILE is empty
 #================================================================
 
 unalias cd 2>/dev/null
@@ -65,7 +66,8 @@ function cdselect
 # cdhist -a : whole history
 # cdhist [-a] <pattern> [<pat>...]: display dirs matching pattern/cd to dir if unique found
 function cdhist {
-    typeset gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk
+    typeset gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk dir
+    [ ! -s "$cdhf" ] && echo "$CDINITDIRS" >$cdhf
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
     [ -x /bin/nawk ] && awk=nawk
@@ -92,7 +94,7 @@ function locatedir {
     done
 }
 
-function cdl {
+function cdlocate {
     cdselect "$(locatedir "$@")"
 }
 
@@ -101,3 +103,4 @@ alias cd-='cd -'
 alias cd--=cdhist
 alias cd+='cdsub 1'
 alias cd++='cdsub 4'
+alias cdl=cdlocate
