@@ -19,16 +19,16 @@ $ cd <dir>
 => change to <dir> and add <dir> to $CDHISTFILE
 $ cd --
 => display current history / choose dir to change
-$ cd -- <pat>
+$ cd -- <pat>...
 => search pattern <pat> in current history, change to dir if unique, display / chose dir either
-$ cd - <pat>
+$ cd - <pat>...
 => search pattern <pat> in cd history, change to dir first matched
-$ cd + [<pat>]
+$ cd + [<pat>]...
 => display immediate subdirectories of cwd, search / choose dir to change (except dot dirs, like .git/*)
-$ cd ++ [<pat>]
+$ cd ++ [<pat>]...
 => display subdirectories until depth 4, search / choose dir to change (except dot dirs, like .git/*)
-$ cdl [<pat>]
-=> use locate -b -r and get list of directories to switch
+$ cdl [<pat>]...
+=> use locate -r and get list of directories to switch
 ```
 
 
@@ -64,16 +64,19 @@ cd: hiera
 user@host:~/puppet/modules/os_prereq/hieradata $ cd- manif
 user@host:~/puppet/modules/os_prereq/manifests $ cd- modules$
 user@host:~/puppet/modules $ cd++
-1. ./apache/hieradata
-2. ./apache/manifests
-3. ./os_prereq/hieradata
-4. ./os_prereq/manifests
+1:./apache/hieradata
+2:./apache/manifests
+3:./os_prereq/hieradata
+4:./os_prereq/manifests
 cd: 
-user@host:~/puppet/modules $ cdl ^log$
-1:/opt/puppetlabs/puppet/lib/ruby/vendor_ruby/puppet/util/log
-2:/var/log
-cd: puppet
-user@host:/opt/puppetlabs/puppet/lib/ruby/vendor_ruby/puppet/util/log $
+user@host:~/puppet/modules $ cdl usr syslog
+1:/usr/lib/rsyslog
+2:/usr/lib/x86_64-linux-gnu/rsyslog
+3:/usr/share/rsyslog
+4:/usr/share/doc/rsyslog
+5:/usr/share/doc/rsyslog/examples/rsyslog.d
+cd: example
+user@host:/usr/share/doc/rsyslog/examples/rsyslog.d $
 ```
 
 # environment variables
