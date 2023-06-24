@@ -40,7 +40,7 @@ function cdpush {
     \cd "$@" || return $?
     echo "$PWD" >"$cdhf.tmp"
     grep -v "^$PWD$" "$cdhf" >>"$cdhf.tmp"
-    [ -s "$cdhf.tmp" ] && mv "$cdhf.tmp" "$cdhf"
+    [ -s "$cdhf.tmp" ] && \mv "$cdhf.tmp" "$cdhf"
     return 0
 }
 
