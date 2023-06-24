@@ -1,9 +1,11 @@
 # cdhist
-cd history/subdir navigation (bash / ksh / zsh / ash)
-(compatible macos / debian / centos ...)
+cd history/subdir/locatedir navigation (bash / ksh / zsh / ash)
+(compatible macos / debian / centos / solaris / ish ...)
 
 * simple cd history, alias builtin cd to add cd history  
   * rapidily swich to already visited directories
+
+* can use locate (mlocate/plocate) to rapidly cd to any directory
 
 * display / choose subdirectories of cwd
 
@@ -23,8 +25,10 @@ $ cd - <pat>
 => search pattern <pat> in cd history, change to dir first matched
 $ cd + [<pat>]
 => display immediate subdirectories of cwd, search / choose dir to change (except dot dirs, like .git/*)
-$ cd ++ [<pat]
+$ cd ++ [<pat>]
 => display subdirectories until depth 4, search / choose dir to change (except dot dirs, like .git/*)
+$ cdl [<pat>]
+=> use locate -b -r and get list of directories to switch
 ```
 
 
@@ -65,6 +69,11 @@ user@host:~/puppet/modules $ cd++
 3. ./os_prereq/hieradata
 4. ./os_prereq/manifests
 cd: 
+user@host:~/puppet/modules $ cdl ^log$
+1:/opt/puppetlabs/puppet/lib/ruby/vendor_ruby/puppet/util/log
+2:/var/log
+cd: puppet
+user@host:/opt/puppetlabs/puppet/lib/ruby/vendor_ruby/puppet/util/log $
 ```
 
 # environment variables
@@ -72,5 +81,7 @@ cd:
 `CDHISTFILE` : path to history file (default to ~/.cd_history)
 
 `CDNBDIRS`   : Number of directories in history to display (default 10)
+
+`CDINITDIRS` : Directory list (\n separated) to initialize CDHISTFILE if empty
 
 `cd -- -a` or `cd-- -a` will display full history
