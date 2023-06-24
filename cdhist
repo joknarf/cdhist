@@ -87,8 +87,9 @@ function cdsub {
 
 # use locate to get directories
 function locatedir {
-    typeset file gr
+    typeset file gr awk=awk
     [ "$1" ] || return
+    [ -x /bin/nawk ] && awk=nawk
     gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
     shift $(($#-1))
     locate -r "$gr" |awk -F'/' '/\/\.|^\/snap/{next}$NF ~ gr' gr=${1##*/} |while read file
