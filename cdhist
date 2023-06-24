@@ -91,7 +91,7 @@ function locatedir {
     [ "$1" ] || return
     [ -x /bin/nawk ] && awk=nawk
     gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
-    shift $(($#-1))
+    shift $(($# - 1))
     locate -r "$gr" |awk -F'/' '/\/\.|^\/snap/{next}$NF ~ gr' gr=${1##*/} |while read file
     do
         [ -d "$file" ] && echo "$file"
