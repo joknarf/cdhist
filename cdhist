@@ -83,6 +83,19 @@ function cdsub {
     cdselect "$(find . -xdev -mindepth 1 -maxdepth $depth -name '.?*' -prune -o -type d -print |egrep "$gr" 2>/dev/null)"
 }
 
+# use locate to get directories
+function locatedir {
+    typeset file
+    locate -b -r "$@" |egrep -v '/\.|^/snap' 2>/dev/null |while read file
+    do
+        [ -d "$file" ] && echo "$file"
+    done
+}
+
+function cdl {
+    cdselect "$(locatedir "$@")"
+}
+
 alias cd=cdpush
 alias cd-='cd -'
 alias cd--=cdhist
