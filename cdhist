@@ -46,20 +46,9 @@ function cdpush {
 
 function cdselect
 {
-    typeset dirs="$1" resp
-    while true
-    do
-        [ "$dirs" ] || return 1
-        [[ "$dirs" != *$'\n'* ]] && { cdpush "$dirs" ; return $?; }
-        echo "$dirs"| GREP_COLORS='ms=01;34' GREP_COLOR='1;34;49' grep --color=auto -n ".*" 2>/dev/null
-        printf "cd: "
-        read resp
-        case "$resp" in
-            '')       break;;
-            *[!0-9]*) dirs=$(echo "$dirs" |egrep "$resp" 2>/dev/null);;
-            *)        cdpush "$(echo "$dirs" |awk NR==$resp)"; return $?;;
-        esac
-    done
+    typeset dir nb=$1
+    dir=$(bselect -m $nb -p cd -i "$2")
+    [ "$dir" ] && cdpush "$dir"
 }
 
 # cdhist    : Display CDNBDIRS history
@@ -72,7 +61,7 @@ function cdhist {
     [ "$1" = - ] && first="exit" && shift
     [ -x /bin/nawk ] && awk=nawk
     [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
-    cdselect "$($awk 'n == nb {exit} $0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)"
+    cdselect $nb "$($awk '$0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)"
 }
 
 # display/change to subdirs of cwd
@@ -108,3 +97,192 @@ alias cd--=cdhist
 alias cd+='cdsub 1'
 alias cd++='cdsub 4'
 alias cdl=cdlocate
+
+### bselect
+
+# no proper way to restore tty on trap
+function ctrl_c
+{
+  tput ich 16
+  printf "(Ctl-X to exit)\r"
+}
+
+function _menuprompt
+{
+  typeset form filter=${3:-$_nsel}
+  form="$1 ($2): %s"
+  [ "$_powerline" ] && form="\e[30m\e[100m\e[97m $1 ($2) \e[0m\e[90m\e[100m\e[49m\e[0m %s"
+  printf "$form" "$filter"
+  tput el
+  printf "\r"
+}
+
+function _showmenu 
+{
+  typeset prompt="$1" nsel="$2" nbitems="$3" filter="$4" item i min max sel lines
+
+  _menuprompt "$prompt" "$nbitems" "$filter"
+  w=$nbitems;w=${#w}
+  lines=${_maxlines:-$LINES}
+  [ $lines -gt $LINES ] && lines=$LINES
+  min=$(($nsel-$lines+2))
+  [ "$min" -le 0 ] && min=1
+  max=$(($min+$lines-2))
+  i=0
+  sel="\n\e[1;96m>%${w}s  %s\e[0m"
+  sel="\n\e[30m\e[46m\e[97m %${w}s \e[0m\e[1;96m %s\e[0m"
+  [ "$_powerline" ] && sel="\n\e[30m\e[46m\e[97m %${w}s \e[0m\e[36m\e[46m\e[49m\e[0m\e[1;96m%s\e[0m"
+  echo "$_items" |while read item
+  do
+    i=$((i + 1))
+    [[ $i -ge $min ]] || continue
+    [[ $i -le $max ]] || break
+    if [[ $nsel == "$i" ]]; then 
+      printf "$sel" $i "$item"
+      #printf "\n\e[1;96m> %${w}s  %s\e[0m" $i "$item"
+    else
+      printf "\n\e[32m %${w}s  \e[94m%s\e[0m" $i "$item"
+    fi
+    tput el #clear end of line
+  done
+  size=$((nbitems+1))
+  [ "$size" -gt $lines ] && size=$lines
+  # back to top of menu
+  i=1;while [ $i -lt $size ];do
+    echo cuu1
+    i=$((i + 1))
+  done | tput -S
+  printf "\r" # begin of line
+}
+
+function _select
+{
+  typeset prompt="$1" newsel="$2" nbitems="$3" filter="$4" lines
+
+  lines=${_maxlines:-$LINES}
+  [ $lines -gt $LINES ] && lines=$LINES
+  _nsel=$(($newsel))
+  [ $_nsel -lt 1 ] && _nsel=1
+  [ $_nsel -ge $nbitems ] && _nsel=$nbitems
+  _showmenu "$prompt" "$_nsel" "$nbitems" "$filter"
+}
+
+function _domenu 
+{
+  typeset prompt="$1" filter="" nbitems o=n
+  _nsel=1
+  [ "$ZSH_VERSION" ] && o=k
+  [ "$_items" ] || return 1
+  nbitems=$(($(echo "$_items"|wc -l) + 0))
+  [ "$nbitems" = 1 ] && selected=$_items && return 0
+  tput civis
+  stty -echo
+  printf "\e[?7l"
+  : ${LINES:=$(tput lines)}
+  [ "$_maxlines" -gt 2 ] || unset _maxlines
+  _showmenu "$prompt" "$_nsel" "$nbitems" ""
+  while true
+  do
+    IFS= read -rs${o}1 k
+    case $k in
+      $'\x1b')
+          filter=""
+          read -rs${o}2 -t1 k
+          case $k in 
+            '[A') #up
+              _select "$prompt" "_nsel-1" "$nbitems" "$filter";;
+            '[B') #down
+              _select "$prompt" "_nsel+1" "$nbitems" "$filter";;
+            '[H'|'[D') #home or arrowleft
+              _select "$prompt" "1" "$nbitems" "$filter";;
+            '[F'|'[C') #end or arrowright
+              _select "$prompt" "nbitems" "$nbitems" "$filter";;
+            '[6') #pagedn [6~
+              read -rs${o}1 -t1 k
+              _select "$prompt" "_nsel+lines-1" "$nbitems" "$filter";;
+            '[5') #pageup [5~
+              read -rs${o}1 -t1 k
+              _select "$prompt" "_nsel-lines+1" "$nbitems" "$filter";;
+            *) break;;
+          esac;;
+      $'\x7f') #backspace
+        filter=${filter%?}
+        _menuprompt "$prompt" "$nbitems" "$filter";;
+      [[:graph:]]|" ") #text [a-zA-Z0-9/_?*\(\)\ .-]) 
+        filter="$filter$k"
+        [ "$filter" = ":q" ] && break
+        _menuprompt "$prompt" "$nbitems" "$filter";;
+      $'\x06') # Ctl-F => pgdn
+        _select "$prompt" "_nsel+lines-1" "$nbitems" "$filter";;
+      $'\x02') # Ctl-B => pgup
+        _select "$prompt" "_nsel-lines+1" "$nbitems" "$filter";;
+      $'\x0c') # Ctl-L => refresh
+        _showmenu "$prompt" "$_nsel" "$nbitems" "$filter";;
+      $'\x01') # Ctl-A => all
+        unset _maxlines
+        _showmenu "$prompt" "$_nsel" "$nbitems" "$filter";;        
+      $'\x0d'|''|$'\n') #enter
+        tput ed
+        [ "$filter" ] && _nsel=""
+        [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || selected=$(echo "$_items" |egrep "$filter")
+        [ "$_nsel" ] && selected=$(echo "$_items" |awk NR==$_nsel)
+        [ ! "$selected" ] && break
+        [[ "$selected" != *$'\n'* ]] && break
+        _items="$selected"
+        selected=""
+        nbitems=$(($(echo "$_items"|wc -l) + 0))
+        _nsel=1
+        filter=""
+        _showmenu "$prompt" "$_nsel" "$nbitems" "$filter";;
+      *) echo "$k" >/tmp/o;break;
+    esac
+  done
+  unset _nsel
+  tput ed
+  tput cnorm
+}
+
+function bselect
+{
+  typeset prompt
+
+  prompt="select"
+  selected=""
+  _maxlines=0
+  [ "$1" = "-P" ] && _powerline=1 && shift
+  [ "$ps1_nopw" = 0 ] && _powerline=1
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -p|--prompt)
+        [ "$2" ] && prompt="$2" || return 1
+        ;;
+      -i|--items)
+        [ "$2" ] && _items="$2" || return 1
+        ;;
+      -f|--file)
+        [ "$2" ] && _items="$(cat $2)" || return 1
+        ;;
+      -m|--max)
+        [ "$2" ] && _maxlines="$(($2+1))" || return 1
+        ;;
+      *)
+        printf "usage: bselect [-p <prompt>] -i <items>|-f <itemfile>\n"
+        printf "args :\n"
+        printf "%s\n" "  -p, --prompt          menu prompt"
+        printf "%s\n" "  -i, --items           menu items \n separated"
+        printf "%s\n" "  -f, --file            file with items"
+        return 1
+        ;;
+    esac
+    shift 2
+  done
+  _stty_ori=$(stty -g)
+  trap ctrl_c INT
+  _domenu "$prompt" >&2
+  trap - INT
+  stty $_stty_ori
+  unset _items
+  unset _maxlines
+  [ "$selected" ] && printf "$selected" && return 0
+  return 1
+}
