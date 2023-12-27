@@ -1,6 +1,6 @@
 # cdhist
-cd history/subdir/locatedir navigation (bash / ksh / zsh / ash)
-(compatible macos / debian / centos / solaris / ish ...)
+cd history/subdir/locatedir navigation (bash / ksh / zsh)
+(compatible macos / debian / centos / solaris / alpine ...)
 
 * simple cd history, alias builtin cd to add cd history  
   * rapidily swich to already visited directories
