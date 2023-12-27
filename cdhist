@@ -73,7 +73,7 @@ function cdsub {
     shift
     [ -x /bin/nawk ] && awk=nawk
     [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
-    cdselect "$(find . -xdev -mindepth 1 -maxdepth $depth -name '.?*' -prune -o -type d -print |egrep "$gr" 2>/dev/null)"
+    cdselect -1 "$(find . -xdev -mindepth 1 -maxdepth $depth -name '.?*' -prune -o -type d -print |egrep "$gr" 2>/dev/null)"
 }
 
 # use locate to get directories
@@ -90,7 +90,7 @@ function locatedir {
 }
 
 function cdlocate {
-    cdselect "$(locatedir "$@")"
+    cdselect -1 "$(locatedir "$@")"
 }
 
 alias cd=cdpush
