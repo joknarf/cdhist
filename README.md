@@ -9,7 +9,7 @@ cd history/subdir/locatedir navigation (bash / ksh / zsh / ash)
 
 * display / choose subdirectories of cwd
 
-![cdhist](https://github.com/joknarf/cdhist/assets/10117818/694e021e-e49e-4f93-8ede-228fc179e996)
+![cdhist2](https://github.com/joknarf/cdhist/assets/10117818/e8eb130c-9cc8-4a1d-904d-034b6d1f93b4)
 
 # usage
 
@@ -86,5 +86,7 @@ user@host:/usr/share/doc/rsyslog/examples/rsyslog.d $
 `CDNBDIRS`   : Number of directories in history to display (default 10)
 
 `CDINITDIRS` : Directory list (\n separated) to initialize CDHISTFILE if empty
+
+`CDPOWERLINE` : set to "n" to disable powerline symbol usage
 
 `cd -- -a` or `cd-- -a` will display full history
