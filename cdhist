@@ -49,7 +49,7 @@ function cdpush {
 function cdselect
 {
     typeset dir nb=$1
-    dir=$(bselect -P $CDPOWERLINE -m $nb -p cd -i "$2")
+    dir=$(selector -P $CDPOWERLINE -m $nb -p cd -i "$2")
     [ "$dir" ] && cdpush "$dir"
 }
 
@@ -100,7 +100,7 @@ alias cd+='cdsub 1'
 alias cd++='cdsub 4'
 alias cdl=cdlocate
 
-### bselect
+### selector from https://github.com/joknarf/selector
 
 # no proper way to restore tty on trap
 function ctrl_c
@@ -174,8 +174,14 @@ function _select
 
 function _items_split
 {
-  typeset i=1 item
+  typeset filter="$1" i=1 item
 
+  [ "$filter" ] && {
+    _nsel=""
+    [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items="$(printf "%s" "$_items" |egrep -- "$filter")"
+  }
+  [ "$_nsel" ] && _items="${_aitems[$_nsel]}"
+  _nsel=1
   unset _aitems
   while read item;do
     _aitems[$i]="$item"
@@ -183,19 +189,22 @@ function _items_split
   done <<EOT
 $_items
 EOT
-  unset _items
 }
 
 function _domenu 
 {
-  typeset prompt="$1" filter="" nbitems o=n
+  typeset prompt="$1" filter="$2" nbitems o=n
 
-  _nsel=1
   [ "$ZSH_VERSION" ] && o=k
+  _items_split "$filter"
   [ "$_items" ] || return 1
-  _items_split
   nbitems=${#_aitems[@]}
-  [ "$nbitems" = 1 ] && selected="${_aitems[1]}" && return 0
+  [ "$nbitems" = 1 ] && {
+    selected="${_aitems[1]}"
+    unset _nsel
+    return 0
+  }
+  filter=""
   tput civis
   stty -echo
   printf "\e[?7l"
@@ -244,27 +253,24 @@ function _domenu
         _showmenu "$prompt" "$_nsel" "$nbitems" "$filter";;        
       $'\x0d'|''|$'\n') #enter
         tput ed
-        [ "$filter" ] && _nsel=""
-        [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items=$(printf '%s\n' "${_aitems[@]}" |egrep "$filter")
-        [ "$_nsel" ] && _items="${_aitems[$_nsel]}"
+        _items_split "$filter"
         [ ! "$_items" ] && break
-        _items_split
         nbitems=${#_aitems[@]}
-        [ $nbitems = 1 ] && selected=${_aitems[1]} && break
-        _nsel=1
+        [ $nbitems = 1 ] && selected="${_aitems[1]}" && break
         filter=""
         _showmenu "$prompt" "$_nsel" "$nbitems" "$filter";;
-      *) echo "$k" >/tmp/o;break;
+      *) break;
     esac
   done
   unset _nsel
+  unset _aitems
   tput ed
   tput cnorm
 }
 
-function bselect
+function selector
 {
-  typeset prompt
+  typeset prompt filter
 
   prompt="select"
   selected=""
@@ -287,12 +293,16 @@ function bselect
       -P|--powerline)
         [ "$2" ] && _powerline="$2" || return 1
         ;;
+      -F|--filter)
+        [ "$2" ] && filter="$2" || return 1
+        ;;
       *)
-        printf "usage: bselect [-p <prompt>] -i <items>|-f <itemfile> [-P <y|n>]\n"
+        printf "usage: selector [-p <prompt>] -i <items>|-f <itemfile> [-P <y|n>]\n"
         printf "args :\n"
         printf "%s\n" "  -p, --prompt          menu prompt"
         printf "%s\n" "  -i, --items           menu items \n separated"
         printf "%s\n" "  -f, --file            file with items"
+        printf "%s\n" "  -F, --filter          regexp pattern filter items"
         printf "%s\n" "  -P, --powerline       y or n, powerline symbol usage"
         return 1
         ;;
@@ -301,7 +311,7 @@ function bselect
   done
   _stty_ori=$(stty -g)
   trap ctrl_c INT
-  _domenu "$prompt" >&2
+  _domenu "$prompt" "$filter" >&2
   trap - INT
   stty $_stty_ori
   unset _items
@@ -310,4 +320,4 @@ function bselect
   return 1
 }
 
-[ "$1" ] && bselect "$@"
+[ "$1" ] && selector "$@"
