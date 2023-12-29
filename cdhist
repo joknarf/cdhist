@@ -100,6 +100,13 @@ alias cd+='cdsub 1'
 alias cd++='cdsub 4'
 alias cdl=cdlocate
 
+# Alt-C to get cdhist
+[ "$BASH" ] && {
+    bind '"\C-xk": backward-kill-line'
+    bind '"\C-xy": yank'
+    bind '"\ec": '"'"'.\C-xk cdhist \C-xy\C-h\015'"'"
+}
+
 ### selector from https://github.com/joknarf/selector
 
 # no proper way to restore tty on trap
@@ -178,12 +185,12 @@ function _items_split
 
   [ "$filter" ] && {
     _nsel=""
-    [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items="$(printf "%s" "$_items" |egrep -- "$filter")"
+    [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items="$(printf "%s" "$_items" |egrep -- "$filter"|uniq)"
   }
   [ "$_nsel" ] && _items="${_aitems[$_nsel]}"
   _nsel=1
   unset _aitems
-  while read item;do
+  while read -r item;do
     _aitems[$i]="$item"
     i=$((i+1))
   done <<EOT
@@ -251,7 +258,7 @@ function _domenu
       $'\x01') # Ctl-A => all
         unset _maxlines
         _showmenu "$prompt" "$_nsel" "$nbitems" "$filter";;        
-      $'\x0d'|''|$'\n') #enter
+      $'\x0d'|''|$'\n'|$'\t') #enter / tab
         tput ed
         _items_split "$filter"
         [ ! "$_items" ] && break
@@ -316,8 +323,6 @@ function selector
   stty $_stty_ori
   unset _items
   unset _maxlines
-  [ "$selected" ] && printf "$selected" && return 0
+  [ "$selected" ] && printf "%s" "$selected" && return 0
   return 1
 }
-
-[ "$1" ] && selector "$@"
