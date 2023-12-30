@@ -102,9 +102,12 @@ alias cdl=cdlocate
 
 # Alt-C to get cdhist
 [ "$BASH" ] && {
-    bind '"\C-xk": backward-kill-line'
-    bind '"\C-xy": yank'
-    bind '"\ec": '"'"'.\C-xk cdhist \C-xy\C-h\015'"'"
+    bind -m vi-insert '"\C-xk": backward-kill-line'
+    bind -m vi-insert '"\ec": ".\C-xk cdhist \C-y\C-h\015"'
+    bind -m vi-command '"!": "i.\C-xk cdhist \C-y\C-h\015"'
+    bind -m emacs-standard '"\C-xk": backward-kill-line'
+    bind -m emacs-standard '"\ec": ".\C-xk cdhist \C-y\C-h\015"'
+    bind -m emacs-standard '"\M-!": "i.\C-xk cdhist \C-y\C-h\015"'
 }
 
 ### selector from https://github.com/joknarf/selector
