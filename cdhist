@@ -39,8 +39,13 @@ function cdpush {
         ++) shift; cdsub 4 "$@"; return $?;;
         ~*) set -- "$HOME${1#\~}";;
     esac
-    \cd "$@" || return $?
-    echo "$PWD" >"$cdhf.tmp"
+    [ "$_cdpr" = 1 ] && {
+      printf "%q " "cd" "$@"
+      return 0
+    } || {
+      \cd "$@" || return $?
+    }
+    printf "%s\n" "$PWD" >"$cdhf.tmp"
     grep -v "^$PWD$" "$cdhf" >>"$cdhf.tmp"
     [ -s "$cdhf.tmp" ] && \mv "$cdhf.tmp" "$cdhf"
     return 0
@@ -102,12 +107,20 @@ alias cdl=cdlocate
 
 # Alt-C to get cdhist
 [ "$BASH" ] && {
+    bind -m vi-insert '"\C-xr": redraw-current-line'
     bind -m vi-insert '"\C-xk": backward-kill-line'
-    bind -m vi-insert '"\ec": ".\C-xk cdhist \C-y\C-h\015"'
-    bind -m vi-command '"!": "i.\C-xk cdhist \C-y\C-h\015"'
+    bind -m vi-insert '"\C-xx": shell-expand-line'
+    bind -m vi-insert '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+    bind -m vi-command '"!": "i.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+    bind -m vi-command '"l": "i.\C-xk$(_cdpr=1 cdlocate \C-y\C-h)\C-xx\C-xr\015"'
+
+    bind -m emacs-standard '"\C-xr": redraw-current-line'
     bind -m emacs-standard '"\C-xk": backward-kill-line'
-    bind -m emacs-standard '"\ec": ".\C-xk cdhist \C-y\C-h\015"'
-    bind -m emacs-standard '"\M-!": "i.\C-xk cdhist \C-y\C-h\015"'
+    bind -m emacs-standard '"\C-xx": shell-expand-line'
+    bind -m emacs-standard '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+    bind -m emacs-standard '"\M-!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+    bind -m emacs-standard '"\M-l": ".\C-xk$(_cdpr=1 cdlocate \C-y\C-h)\C-xx\C-xr\015"'
+
 }
 
 ### selector from https://github.com/joknarf/selector
@@ -122,6 +135,7 @@ function _ctrl_c
 function _menuprompt
 {
   typeset form filter=${3:-${_aitems[$_nsel]}} nb="$_nsel/$2 "
+  printf "\r"
   [ "$3" ] && nb=""
   form="$1: %s%s"
   [ "$_powerline" = "y" ] && {
@@ -258,9 +272,9 @@ function _domenu
         [ "$_autofilter" = y ] && [[ ! "$filter" =~ ^[0-9]+$ ]] && {
           tput ed
           _items_split "$filter"
-          [ ! "$_items" ] && break
+          [ ! "$_items" ] && { printf "Not found !"; read -rs${o}4 -t1 k; break; }
           nbitems=${#_aitems[@]}
-          [ $nbitems = 1 ] && selected="${_aitems[1]}" && break
+          [ $nbitems = 1 ] && { read -rs${o}2 -t.5 k ; selected="${_aitems[1]}" && break; }
           _showmenu "$prompt" "$_nsel" "$nbitems" "$filter"
         }
         _menuprompt "$prompt" "$nbitems" "$filter";;
