@@ -111,8 +111,8 @@ alias cdl=cdlocate
     bind -m vi-insert '"\C-xk": backward-kill-line'
     bind -m vi-insert '"\C-xx": shell-expand-line'
     bind -m vi-insert '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m vi-command '"!": "i.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m vi-command '"l": "i.\C-xk$(_cdpr=1 cdlocate \C-y\C-h)\C-xx\C-xr\015"'
+    bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+    bind -m vi-command '"l": "a.\C-xk$(_cdpr=1 cdlocate \C-y\C-h)\C-xx\C-xr\015"'
 
     bind -m emacs-standard '"\C-xr": redraw-current-line'
     bind -m emacs-standard '"\C-xk": backward-kill-line'
