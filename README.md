@@ -11,6 +11,10 @@ cd history/subdir/locatedir navigation (bash / ksh / zsh)
 
 ![cdhist2](https://github.com/joknarf/cdhist/assets/10117818/e8eb130c-9cc8-4a1d-904d-034b6d1f93b4)
 
+* using bash:
+  * cdhist directly available with `Esc+!`
+  * cdlocate available with `Esc+l` (put directory pattern on command line then Esc+l)
+
 # usage
 
 ```
@@ -27,57 +31,13 @@ $ cd + [<pat>]...
 => display immediate subdirectories of cwd, search / choose dir to change (except dot dirs, like .git/*)
 $ cd ++ [<pat>]...
 => display subdirectories until depth 4, search / choose dir to change (except dot dirs, like .git/*)
-$ cdl [<pat>]...
+$ cdl <pat>...
 => use locate -r and get list of directories to switch
 ```
 
 
 `cd - <opts>` `cd -- <opts>` `cd + <opts>` `cd ++ <opts>` are aliases to `cd- cd-- cd+ cd++`
 
-
-## example
-
-```shell
-user@host:~ $ cd ~/puppet/modules/apache/manifests
-user@host:~/puppet/modules/apache/manifests $ cd ../hieradata
-user@host:~/puppet/modules/apache/hieradata $ cd ../../os_prereq/manifests
-user@host:~/puppet/modules/os_prereq/manifests $ cd ../hieradata
-user@host:~/puppet/modules/os_prereq/hierdata $ cd--
-1:~/puppet/os_prereq/manifests
-2:~/puppet/apache/hieradata
-3:~/puppet/apache/manifests
-cd: 2
-user@host:~/puppet/modules/apache/hieradata $ cd-- manif
-1:~/puppet/os_prereq/manifests
-2:~/puppet/apache/manifests
-cd :
-user@host:~/puppet/modules/apache/hieradata $ cd-- os_pr /man
-user@host:~/puppet/modules/os_prereq/manifests $ cd-- apa hiera
-user@host:~/puppet/modules/apache/hieradata $ cd--
-1:~/puppet/modules/os_prereq/manifests
-2:~/puppet/modules/apache/hieradata
-3:~/puppet/modules/os_prereq/hieradata
-cd: prereq
-1:~/puppet/modules/os_prereq/manifests
-2:~/puppet/modules/os_prereq/hieradata
-cd: hiera
-user@host:~/puppet/modules/os_prereq/hieradata $ cd- manif
-user@host:~/puppet/modules/os_prereq/manifests $ cd- modules$
-user@host:~/puppet/modules $ cd++
-1:./apache/hieradata
-2:./apache/manifests
-3:./os_prereq/hieradata
-4:./os_prereq/manifests
-cd: 
-user@host:~/puppet/modules $ cdl usr syslog
-1:/usr/lib/rsyslog
-2:/usr/lib/x86_64-linux-gnu/rsyslog
-3:/usr/share/rsyslog
-4:/usr/share/doc/rsyslog
-5:/usr/share/doc/rsyslog/examples/rsyslog.d
-cd: example
-user@host:/usr/share/doc/rsyslog/examples/rsyslog.d $
-```
 
 # environment variables
 
@@ -90,3 +50,21 @@ user@host:/usr/share/doc/rsyslog/examples/rsyslog.d $
 `CDPOWERLINE` : set to "n" to disable powerline symbol usage
 
 `cd -- -a` or `cd-- -a` will display full history
+
+## keys in menu
+
+|key       | action                          |
+|----------|---------------------------------|
+|Down      | select nex item                 | 
+|Up        | select prev item                |
+|Right/End | select last item                |
+|Left/Home | select first item               | 
+|PgUp/Ctl-F| next page                       |
+|PgDn/Ctl-B| previous page                   |
+|Ctl-X/Esc | exit                            |
+|Ctl-A     | use all screen to display menu  |
+|Enter     | validate selected item          |
+|Tab       | apply filter/new filter         |
+
+* filter pattern can be applied entering text (ext regexp)
+* selection can be done entering item number
