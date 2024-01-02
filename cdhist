@@ -143,7 +143,7 @@ alias cdl=cdlocate
   # \C-e end-of-line
   # \C-k kill-line
   # safe param quoting (takes only current line until first simple quote)
-    bind -m emacs-standard '"\ec": "\C-e'"'"'\C-a\C-xs'"'"'\C-xb'"'"'.\C-xk$(_cdprd=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"\ec": "\C-e'"'"'\C-a\C-xs'"'"'\C-xb'"'"'.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
     bind -m emacs-standard '"\e!": "\ec"'
     bind -m emacs-standard '"\el": "\C-e'"'"'\C-a\C-xs'"'"'\C-xb'"'"'.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
 
