@@ -105,22 +105,53 @@ alias cd+='cdsub 1'
 alias cd++='cdsub 4'
 alias cdl=cdlocate
 
-# Alt-C to get cdhist
+# Esc-: Alt-c to get cdhist
 [ "$BASH" ] && {
+    [ "$(uname -s)" = Darwin ] && _cdhist_lc="LC_ALL=C " || _cdhist_lc=""
+
     bind -m vi-insert '"\C-xr": redraw-current-line'
-    bind -m vi-insert '"\C-xk": backward-kill-line'
     bind -m vi-insert '"\C-xx": shell-expand-line'
-    bind -m vi-insert '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m vi-command '"l": "a.\C-xk$(_cdpr=1 cdlocate \C-y\C-h)\C-xx\C-xr\015"'
+    bind -m vi-insert '"\C-xk": backward-kill-line'
+    bind -m vi-insert '"\C-xs": character-search'
+    bind -m vi-insert '"\C-xb": character-search-backward'
+    bind -m vi-insert '"\C-xe": kill-line'
+    bind -m vi-insert '"\C-xd": kill-whole-line'
+    # safe param quoting (but take only current line until first simple quote)
+    # prevent expansion in filter
+    # - append simple quote to line
+    # - search from begin of line the simple quote
+    # - search backward simple quote (if first char)
+    # - add character "." before simple quote (for kill reset if empty)
+    # - cut before simple quote
+    # - paste in param, remove last character added
+    # - cut en of line
+    # - expand line
+    bind -m vi-insert '"\ec": "\eA'"'"'\e0i\C-xs'"'"'\C-xb'"'"'.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-xe\e0i\C-xx\eA\C-xr\015"'
+    bind -m vi-command '"!": "a\ec"'
+
+    #bind -m vi-insert '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+    #bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+    bind -m vi-insert '"\M-l": "\eA'"'"'\e0i\C-xs'"'"'\C-xb'"'"'.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\e0i\C-xx\eA\C-xr\015"'
+    bind -m vi-command '"l": "a\M-l"'
 
     bind -m emacs-standard '"\C-xr": redraw-current-line'
-    bind -m emacs-standard '"\C-xk": backward-kill-line'
     bind -m emacs-standard '"\C-xx": shell-expand-line'
-    bind -m emacs-standard '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m emacs-standard '"\M-!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m emacs-standard '"\M-l": ".\C-xk$(_cdpr=1 cdlocate \C-y\C-h)\C-xx\C-xr\015"'
+    bind -m emacs-standard '"\C-xk": backward-kill-line'
+    bind -m emacs-standard '"\C-xs": character-search'
+    bind -m emacs-standard '"\C-xb": character-search-backward'
+    bind -m emacs-standard '"\C-xd": delete-char'
+  # \C-a beginning-of-line
+  # \C-e end-of-line
+  # \C-k kill-line
+  # safe param quoting (takes only current line until first simple quote)
+    bind -m emacs-standard '"\ec": "\C-e'"'"'\C-a\C-xs'"'"'\C-xb'"'"'.\C-xk$('"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"\M-!": "\ec"'
+    bind -m emacs-standard '"\M-l": "\C-e'"'"'\C-a\C-xs'"'"'\C-xb'"'"'.\C-xk$('"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
 
+  #  bind -m emacs-standard '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+  #  bind -m emacs-standard '"\M-!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+  #  bind -m emacs-standard '"\M-l": ".\C-xk$(_cdpr=1 cdlocate \C-y\C-h)\C-xx\C-xr\015"'
+    unset _cdhist_lc
 }
 
 ### selector from https://github.com/joknarf/selector
@@ -134,14 +165,10 @@ function _ctrl_c
 
 function _menuprompt
 {
-  typeset form filter=${3:-${_aitems[$_nsel]}} nb="$_nsel/$2 "
-  [ "$3" ] && nb=""
+  typeset form filter=${3:-${_aitems[$_nsel]}} nb="$_nsel/$2 " pl=""
   printf "\r"
-  form="$1: %s%s"
-  [ "$_powerline" = "y" ] && {
-    [ "$3" ] && form="\e[30m\e[44m\e[97m $1 \e[0m\e[34m\e[44m\e[49m\e[0m %s%s" || \
-                form="\e[30m\e[44m\e[97m $1 \e[0m\e[34m\e[44m\e[100m\e[97m %s\e[0m\e[90m\e[100m\e[49m\e[0m %s"
-  }
+  [ "$_powerline" = "y" ] && pl=""
+  form="\e[30m\e[44m\e[97m $1 \e[0m\e[34m\e[44m\e[100m$pl\e[97m %s\e[0m\e[90m\e[100m\e[49m$pl\e[0m %s"
   printf "$form" "$nb" "$filter"
   tput el
   printf "\r"
