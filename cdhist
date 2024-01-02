@@ -115,7 +115,6 @@ alias cdl=cdlocate
     bind -m vi-insert '"\C-xs": character-search'
     bind -m vi-insert '"\C-xb": character-search-backward'
     bind -m vi-insert '"\C-xe": kill-line'
-    bind -m vi-insert '"\C-xd": kill-whole-line'
     # safe param quoting (but take only current line until first simple quote)
     # prevent expansion in filter
     # - append simple quote to line
@@ -140,14 +139,13 @@ alias cdl=cdlocate
     bind -m emacs-standard '"\C-xk": backward-kill-line'
     bind -m emacs-standard '"\C-xs": character-search'
     bind -m emacs-standard '"\C-xb": character-search-backward'
-    bind -m emacs-standard '"\C-xd": delete-char'
   # \C-a beginning-of-line
   # \C-e end-of-line
   # \C-k kill-line
   # safe param quoting (takes only current line until first simple quote)
     bind -m emacs-standard '"\ec": "\C-e'"'"'\C-a\C-xs'"'"'\C-xb'"'"'.\C-xk$('"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
-    bind -m emacs-standard '"\M-!": "\ec"'
-    bind -m emacs-standard '"\M-l": "\C-e'"'"'\C-a\C-xs'"'"'\C-xb'"'"'.\C-xk$('"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"\e!": "\ec"'
+    bind -m emacs-standard '"\el": "\C-e'"'"'\C-a\C-xs'"'"'\C-xb'"'"'.\C-xk$('"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
 
   #  bind -m emacs-standard '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
   #  bind -m emacs-standard '"\M-!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
