@@ -13,7 +13,7 @@ cd history/subdir/locatedir navigation (bash / ksh / zsh)
 
 * using bash:
   * cdhist directly available with `Esc+!`
-  * cdlocate available with `Esc+l` (put directory pattern on command line then Esc+l)
+  * cdlocate available with `Esc+*` (put directory pattern on command line then `Esc+*`)
 
 # usage
 

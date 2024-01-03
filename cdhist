@@ -146,7 +146,7 @@ alias cdl=cdlocate
     #bind -m vi-insert '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
     #bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
     bind -m vi-insert '"\el": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-    bind -m vi-command '"l": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-command '"*": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
     bind -m emacs-standard '"\C-xr": redraw-current-line'
     bind -m emacs-standard '"\C-xx": shell-expand-line'
