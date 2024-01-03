@@ -54,7 +54,14 @@ function cdpush {
 function cdselect
 {
     typeset dir nb=$1
+    [ "$_cdpr" = 1 ] && {
+      tput el >&2
+      printf "%s\n" "" >&2
+    }
     dir=$(selector -P $CDPOWERLINE -m $nb -p cd -i "$2")
+    [ "$_cdpr" = 1 ] && {
+      tput cuu1 >&2
+    }
     [ "$dir" ] && cdpush "$dir"
 }
 
@@ -129,7 +136,7 @@ alias cdl=cdlocate
   # - add character "." before simple quote (for kill ring if empty)
   # - cut before simple quote
   # - paste in param, remove last character added
-  # - cut en of line
+  # - cut end of line
   # - expand line
 
     bind -m vi-insert '"\ec": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
@@ -239,7 +246,7 @@ function _items_split
 
   [ "$filter" ] && {
     _nsel=""
-    [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items="$(printf "%s" "$_items" |egrep -- "$filter"|uniq)"
+    [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items="$(printf "%s" "$_items" |grep -- "$filter"|uniq)"
   }
   [ "$_nsel" ] && _items="${_aitems[$_nsel]}"
   _nsel=1
