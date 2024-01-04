@@ -71,6 +71,7 @@ function cdselect
 function cdhist {
     typeset gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk dir
     [ ! -s "$cdhf" ] && echo "$CDINITDIRS" >$cdhf
+    [ "$_cdpr" = 1 ] && set -- $*
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
     [ -x /bin/nawk ] && awk=nawk
@@ -102,6 +103,7 @@ function locatedir {
 }
 
 function cdlocate {
+    [ "$_cdpr" =1 ] && tput el >&2
     cdselect -1 "$(locatedir "$@")"
 }
 
@@ -145,7 +147,7 @@ alias cdl=cdlocate
 
     #bind -m vi-insert '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
     #bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m vi-insert '"\el": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-insert '"\e*": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
     bind -m vi-command '"*": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
     bind -m emacs-standard '"\C-xr": redraw-current-line'
@@ -163,7 +165,7 @@ alias cdl=cdlocate
   # safe param quoting (takes only current line until first simple quote)
     bind -m emacs-standard '"\ec": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
     bind -m emacs-standard '"\e!": "\ec"'
-    bind -m emacs-standard '"\el": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"\e*": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
 
   #  bind -m emacs-standard '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
   #  bind -m emacs-standard '"\M-!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
