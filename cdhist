@@ -75,9 +75,11 @@ function cdselect
 function cdhist {
     typeset gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk dir
     [ ! -s "$cdhf" ] && echo "$CDINITDIRS" >$cdhf
-    [ "$_cdpr" = 1 ] && set -- $*
+    [ "$_cdpr" = 1 ] && set -- $* && tput el >&2
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
+    [ "$1" = + ] && shift && { cdsub 1 "$@"; return; }
+    [ "$1" = ++ ] && shift && { cdsub 4 "$@"; return; }
     [ -x /bin/nawk ] && awk=nawk
     [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
     cdselect $nb "$($awk '$0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)"
