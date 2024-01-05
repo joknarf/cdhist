@@ -11,8 +11,8 @@ cd history/subdir/locatedir navigation (bash / ksh / zsh)
 
 ![cdhist2](https://github.com/joknarf/cdhist/assets/10117818/e8eb130c-9cc8-4a1d-904d-034b6d1f93b4)
 
-* using bash:
-  * cdhist directly available with `Esc+!`
+* using bash in emacs or vi mode:
+  * cdhist directly available with `Esc+!` (directory pattern can be put on command line)
   * cdlocate available with `Esc+*` (put directory pattern on command line then `Esc+*`)
 
 # usage
