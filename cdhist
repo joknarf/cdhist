@@ -22,12 +22,16 @@
 #   CDNBDIRS      : default to 10 (nbdir history to display)
 #   CDINITDIRS    : add directories if $CDHISTORYFILE is empty
 #   CDPOWERLINE   : y or n powerline symbol usage
+#   CDHISTBIND    : key to bind cdhist to Esc-key (Alt-key) default "!"
+#   CDLBIND       : key to bind cdlocate to Esc-key (Alt-key) default "*"
 #================================================================
 
 unalias cd 2>/dev/null
 type typeset >/dev/null 2>/dev/null || alias typeset=local # ash
 touch ${CDHISTFILE:=~/.cd_history}
 : ${CDPOWERLINE:=y}
+: ${CDHISTBIND:='!'}
+: ${CDLBIND:='*'}
 
 # change directory and updpate CDHISTFILE
 function cdpush {
@@ -141,14 +145,13 @@ alias cdl=cdlocate
   # - cut end of line
   # - expand line
 
-    bind -m vi-insert '"\ec": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-    bind -m vi-insert '"\e!": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-    bind -m vi-command '"!": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-insert '"\e'"$CDHISTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-command '"'"$CDHISTBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
-    #bind -m vi-insert '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+    #bind -m vi-insert '"\e!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
     #bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m vi-insert '"\e*": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-    bind -m vi-command '"*": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-insert '"\e'"$CDLBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-command '"'"$CDLBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
     bind -m emacs-standard '"\C-xr": redraw-current-line'
     bind -m emacs-standard '"\C-xx": shell-expand-line'
@@ -163,13 +166,10 @@ alias cdl=cdlocate
   # \C-e end-of-line
   # \C-k kill-line
   # safe param quoting (takes only current line until first simple quote)
-    bind -m emacs-standard '"\ec": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
-    bind -m emacs-standard '"\e!": "\ec"'
-    bind -m emacs-standard '"\e*": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"\e'"$CDHISTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"\e'"$CDLBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
 
   #  bind -m emacs-standard '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-  #  bind -m emacs-standard '"\M-!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-  #  bind -m emacs-standard '"\M-l": ".\C-xk$(_cdpr=1 cdlocate \C-y\C-h)\C-xx\C-xr\015"'
     unset _cdhist_lc
 }
 
