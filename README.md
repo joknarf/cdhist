@@ -47,7 +47,7 @@ $ cdl <pat>...
 |`CDNBDIRS`   | Number of directories in history to display (default 10)          |
 |`CDINITDIRS` | Directory list (\n separated) to initialize CDHISTFILE if empty   |
 |`CDPOWERLINE`| set to "n" to disable powerline symbol usage                      |
-|`CDHISTBIND` | bind key to cdhist (Esc-key/Alt-key) default to "/"               |
+|`CDHISTBIND` | bind key to cdhist (Esc-key/Alt-key) default to "!"               |
 |`CDLBIND`    | bind key to cdlocate (Esc-key/Alt-key) default to "*"             |
 
 `cd -- -a` or `cd-- -a` will display full history

@@ -78,6 +78,7 @@ function cdhist {
     [ "$_cdpr" = 1 ] && set -- $* && tput el >&2
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
+    [ "$1" = -l ] && shift && { cdlocate "$@"; return; }
     [ "$1" = + ] && shift && { cdsub 1 "$@"; return; }
     [ "$1" = ++ ] && shift && { cdsub 4 "$@"; return; }
     [ -x /bin/nawk ] && awk=nawk
