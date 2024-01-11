@@ -187,6 +187,7 @@ function _cdbind {
     [ "$ZSH_VERSION" ] && {
       zle -N cdhistw
       bindkey -M vicmd '!' cdhistw
+      bindkey -M emacs '\e!' cdhistw
     }
 }
 alias cd=cdpush
