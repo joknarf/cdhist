@@ -94,6 +94,13 @@ function cdhist {
     cdselect $nb "$($awk '$0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)"
 }
 
+function cdhistw {
+  BUFFER=$(_cdpr=1 cdhist "$BUFFER")
+  zle -Rc
+  zle end-of-line
+  zle vi-insert
+  zle accept-line
+}
 # display/change to subdirs of cwd
 # cdsub <depth> [<pat> ...]
 function cdsub {
@@ -176,7 +183,10 @@ function _cdbind {
         bind -m emacs-standard '"\e'"$CDLBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
 
       #  bind -m emacs-standard '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-        unset _cdhist_lc
+    }
+    [ "$ZSH_VERSION" ] && {
+      zle -N cdhistw
+      bindkey -M vicmd '!' cdhistw
     }
 }
 alias cd=cdpush
@@ -311,7 +321,7 @@ function _domenu
   _items_ori="$_items"
   filter=""
   tput civis
-  stty -echo
+  stty -echo 2>/dev/null
   printf "\e[?7l" # nowrap
   : ${LINES:=$(tput lines)}
   [ "$_maxlines" -gt 2 ] || unset _maxlines
@@ -447,11 +457,11 @@ function selector
     esac
     shift 2
   done
-  _stty_ori=$(stty -g)
+  _stty_ori=$(stty -g 2>/dev/null)
   trap _ctrl_c INT
   LC_ALL=$__selector_lc _domenu "$prompt" "$filter" >&2
   trap - INT
-  stty $_stty_ori
+  stty $_stty_ori 2>/dev/null
   unset _items
   unset _maxlines
   unset _autofilter
