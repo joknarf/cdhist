@@ -114,67 +114,70 @@ function cdlocate {
     cdselect -1 "$(locatedir "$@")"
 }
 
+# Esc-! shortcut to get cdhist
+function _cdbind {
+    [ "$BASH" ] && {
+        [ -t 1 ] || return
+        [[ ! -o emacs ]] && [[ ! -o vi ]] && set -o emacs
+
+        bind -m vi-insert '"\C-xr": redraw-current-line'
+        bind -m vi-insert '"\C-xx": shell-expand-line'
+        bind -m vi-insert '"\C-xk": backward-kill-line'
+        bind -m vi-insert '"\C-xs": character-search'
+        bind -m vi-insert '"\C-xb": character-search-backward'
+        bind -m vi-insert '"\C-xe": kill-line'
+        bind -m vi-insert '"\C-xm": set-mark'
+        bind -m vi-insert '"\C-xc": exchange-point-and-mark'
+
+      # safe param quoting (but take only current line until first simple quote)
+      # prevent expansion in filter / bell ring
+      # - append simple quote to line
+      # - add "." begin of line return begin of line
+      # - search simple quote
+      # - mark position
+      # - delete first character "." added
+      # - exchange mark
+      # - add character "." before simple quote (for kill ring if empty)
+      # - cut before simple quote
+      # - paste in param, remove last character added
+      # - cut end of line
+      # - expand line
+
+        bind -m vi-insert '"\e'"$CDHISTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+        bind -m vi-command '"'"$CDHISTBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+
+        #bind -m vi-insert '"\e!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+        #bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+        bind -m vi-insert '"\e'"$CDLBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+        bind -m vi-command '"'"$CDLBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+
+        bind -m emacs-standard '"\C-xr": redraw-current-line'
+        bind -m emacs-standard '"\C-xx": shell-expand-line'
+        bind -m emacs-standard '"\C-xk": backward-kill-line'
+        bind -m emacs-standard '"\C-xs": character-search'
+      #  bind -m emacs-standard '"\C-xb": character-search-backward'
+        bind -m emacs-standard '"\C-xd": delete-char'
+        bind -m emacs-standard '"\C-xm": set-mark'
+        bind -m emacs-standard '"\C-xc": exchange-point-and-mark'
+
+      # \C-a beginning-of-line
+      # \C-e end-of-line
+      # \C-k kill-line
+      # safe param quoting (takes only current line until first simple quote)
+        bind -m emacs-standard '"\e'"$CDHISTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+        bind -m emacs-standard '"\e'"$CDLBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+
+      #  bind -m emacs-standard '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
+        unset _cdhist_lc
+    }
+}
 alias cd=cdpush
 alias cd-='cd -'
 alias cd--=cdhist
 alias cd+='cdsub 1'
 alias cd++='cdsub 4'
 alias cdl=cdlocate
-
-# Esc-: Alt-c to get cdhist
-[ "$BASH" ] && {
-    [ "$(uname -s)" = Darwin ] && _cdhist_lc="LC_ALL=C " || _cdhist_lc=""
-
-    bind -m vi-insert '"\C-xr": redraw-current-line'
-    bind -m vi-insert '"\C-xx": shell-expand-line'
-    bind -m vi-insert '"\C-xk": backward-kill-line'
-    bind -m vi-insert '"\C-xs": character-search'
-    bind -m vi-insert '"\C-xb": character-search-backward'
-    bind -m vi-insert '"\C-xe": kill-line'
-    bind -m vi-insert '"\C-xm": set-mark'
-    bind -m vi-insert '"\C-xc": exchange-point-and-mark'
-
-  # safe param quoting (but take only current line until first simple quote)
-  # prevent expansion in filter / bell ring
-  # - append simple quote to line
-  # - add "." begin of line return begin of line
-  # - search simple quote
-  # - mark position
-  # - delete first character "." added
-  # - exchange mark
-  # - add character "." before simple quote (for kill ring if empty)
-  # - cut before simple quote
-  # - paste in param, remove last character added
-  # - cut end of line
-  # - expand line
-
-    bind -m vi-insert '"\e'"$CDHISTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-    bind -m vi-command '"'"$CDHISTBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-
-    #bind -m vi-insert '"\e!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    #bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m vi-insert '"\e'"$CDLBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-    bind -m vi-command '"'"$CDLBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-
-    bind -m emacs-standard '"\C-xr": redraw-current-line'
-    bind -m emacs-standard '"\C-xx": shell-expand-line'
-    bind -m emacs-standard '"\C-xk": backward-kill-line'
-    bind -m emacs-standard '"\C-xs": character-search'
-  #  bind -m emacs-standard '"\C-xb": character-search-backward'
-    bind -m emacs-standard '"\C-xd": delete-char'
-    bind -m emacs-standard '"\C-xm": set-mark'
-    bind -m emacs-standard '"\C-xc": exchange-point-and-mark'
-
-  # \C-a beginning-of-line
-  # \C-e end-of-line
-  # \C-k kill-line
-  # safe param quoting (takes only current line until first simple quote)
-    bind -m emacs-standard '"\e'"$CDHISTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
-    bind -m emacs-standard '"\e'"$CDLBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 '"$_cdhist_lc"'cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
-
-  #  bind -m emacs-standard '"\ec": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    unset _cdhist_lc
-}
+_cdbind
 
 ### selector from https://github.com/joknarf/selector
 
@@ -251,7 +254,7 @@ function _items_split
 
   [ "$filter" ] && {
     _nsel=""
-    [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items="$(printf "%s" "$_items" |grep -- "$filter"|uniq)"
+    [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items="$(printf "%s" "$_items" |grep -- "$filter" 2>/dev/null|uniq)"
   }
   [ "$_nsel" ] && _items="${_aitems[$_nsel]}"
   _nsel=1
@@ -421,7 +424,7 @@ function selector
   done
   _stty_ori=$(stty -g)
   trap _ctrl_c INT
-  _domenu "$prompt" "$filter" >&2
+  LC_ALL=$__selector_lc _domenu "$prompt" "$filter" >&2
   trap - INT
   stty $_stty_ori
   unset _items
@@ -430,3 +433,5 @@ function selector
   [ "$selected" ] && printf "%s" "$selected" && return 0
   return 1
 }
+
+locale -a |grep -q "en_US.UTF-8" && __selector_lc=en_US.UTF-8 || __selector_lc=C.UTF-8
