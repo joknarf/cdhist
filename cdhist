@@ -55,6 +55,14 @@ function cdpush {
     return 0
 }
 
+function cddelete
+{
+    typeset cdhf=${CDHISTFILE:-~/.cd_history}
+    [[ "$1" = ~* ]] && set -- "$HOME${1#\~}"
+    grep -Fxv "$1" "$cdhf" >"$cdhf.tmp"
+    [ -s "$cdhf.tmp" ] && \mv "$cdhf.tmp" "$cdhf"
+}
+
 function cdselect
 {
     typeset dir nb=$1
@@ -62,7 +70,7 @@ function cdselect
       tput el >&2
       printf "%s\n" "" >&2
     }
-    dir=$(selector -P $CDPOWERLINE -m $nb -p cd -i "$2")
+    dir=$(selector -P $CDPOWERLINE -m $nb -p cd -d cddelete -i "$2")
     [ "$_cdpr" = 1 ] && {
       tput cuu1 >&2
     }
