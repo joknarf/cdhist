@@ -98,8 +98,8 @@ function cdhistw {
   BUFFER=$(_cdpr=1 cdhist "$BUFFER")
   zle -Rc
   zle end-of-line
-  #zle vi-insert
-  zle accept-line
+  zle vi-insert
+  [ "$BUFFER" ] && zle accept-line
 }
 # display/change to subdirs of cwd
 # cdsub <depth> [<pat> ...]
