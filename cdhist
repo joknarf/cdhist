@@ -67,10 +67,10 @@ function cdselect
 {
     typeset dir nb=$1
     [ "$_cdpr" = 1 ] && {
-      tput el >&2
-      printf "%s\n" "" >&2
+      [ "$BASH" ] && tput el >&2 && printf "%s" "$1" >&2
+      printf "\n" >&2
     }
-    dir=$(selector -P $CDPOWERLINE -m $nb -p cd -d cddelete -i "$2")
+    dir=$(selector -P "$CDPOWERLINE" -m "$nb" -p cd -d cddelete -i "$2")
     [ "$_cdpr" = 1 ] && {
       tput cuu1 >&2
     }
@@ -83,7 +83,7 @@ function cdselect
 function cdhist {
     typeset gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk dir
     [ ! -s "$cdhf" ] && echo "$CDINITDIRS" >$cdhf
-    [ "$_cdpr" = 1 ] && set -- $* && tput el >&2
+    [ "$_cdpr" = 1 ] && set -- $* && [ "$BASH" ] && tput el >&2
     [ "$1" = -a ] && nb=-1 && shift
     [ "$1" = - ] && first="exit" && shift
     [ "$1" = -l ] && shift && { cdlocate "$@"; return; }
@@ -98,7 +98,7 @@ function cdhistw {
   BUFFER=$(_cdpr=1 cdhist "$BUFFER")
   zle -Rc
   zle end-of-line
-  zle vi-insert
+  #zle vi-insert
   zle accept-line
 }
 # display/change to subdirs of cwd
