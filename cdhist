@@ -231,9 +231,10 @@ _cdbind
 # no proper way to restore tty on trap
 function _ctrl_c
 {
-  :
-  # tput cnorm
-  # stty sane
+  [ "$ZSH_VERSION" ] && {
+    tput cuu1 >&2
+    tput el >&2
+  }
 }
 
 function _menuprompt
