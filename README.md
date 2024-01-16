@@ -64,8 +64,8 @@ $ cdl <pat>...
 |PgDn/Ctl-B| previous page                   |
 |Ctl-X/Esc | exit                            |
 |Ctl-A     | use all screen to display menu  |
-|Enter     | validate selected item          |
-|Tab       | apply filter/new filter         |
+|Enter     | go to directory                 |
+|Tab       | browse sub directories of item  |
 
 * filter pattern can be applied entering text (ext regexp)
 * selection can be done entering item number

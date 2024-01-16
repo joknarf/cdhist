@@ -116,13 +116,28 @@ function cdhist {
   cdselect "$nb" "$($awk '$0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)"
 }
 
-function cdhistw {
-  BUFFER=$(_cdpr=1 cdhist "$BUFFER")
+function _zle_do {
   zle -Rc
   zle end-of-line
   zle vi-insert
   [ "$BUFFER" ] && zle accept-line
 }
+
+function cdhistw {
+  BUFFER=$(_cdpr=1 cdhist "$BUFFER")
+  _zle_do
+}
+
+function cddotw {
+  BUFFER=$(_cdpr=1 cdhist + "$BUFFER")
+  _zle_do
+}
+
+function cdlw {
+  BUFFER=$(_cdpr=1 cdhist -l "$BUFFER")
+  _zle_do
+}
+
 
 # display/change to subdirs of cwd
 # cdsub <depth> [<pat> ...]
@@ -214,8 +229,14 @@ function _cdbind {
   }
   [ "$ZSH_VERSION" ] && {
     zle -N cdhistw
+    zle -N cddotw
+    zle -N cdlw
     bindkey -M vicmd '!' cdhistw
     bindkey -M emacs '\e!' cdhistw
+    bindkey -M vicmd ';' cddotw
+    bindkey -M emacs '\e;' cddotw
+    bindkey -M vicmd '*' cdlw
+    bindkey -M emacs '\e*' cdlw
   }
 }
 alias cd=cdpush
