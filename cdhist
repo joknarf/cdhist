@@ -67,7 +67,7 @@ function cdselect
 {
   typeset dir nb=$1
   [ "$_cdpr" = 1 ] && {
-    [ "$BASH" ] && tput el >&2 && printf "%s" "$1" >&2
+    [ "$BASH" ] && tput el >&2
     printf "\n" >&2
   }
   dir=$(selector -P "$CDPOWERLINE" -m "$nb" -p cd -d cddelete -i "$2")
