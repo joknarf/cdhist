@@ -176,17 +176,15 @@ __cd() {
   typeset row col
   _cd "$@"
   [ ${#COMPREPLY[@]} -le 1 ] && return
-  echo "${COMPREPLY[@]}" >/tmp/o
-  set |grep COMP >/tmp/c
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   # [ ! "$COMP_TYPE" = 63 ] && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
   COMPREPLY=("$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}" )" "${COMP_WORDS[1]}")")
-  #kill -WINCH $$
+  #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
   COMPREPLY[0]+='/'
-  tput el >&2
+  #tput el >&2
 }
 
 cdcomplete() {
