@@ -140,7 +140,7 @@ function _cd_keys
 # cdhist [-a] <pattern> [<pat>...]: display dirs matching pattern/cd to dir if unique found
 function cdhist {
   typeset gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk dir
-  [ ! -s "$cdhf" ] && echo "$CDINITDIRS" >$cdhf
+  [ ! -s "$cdhf" ] && printf "%s" "$CDINITDIRS" >$cdhf
   [ "$_cdpr" = 1 ] && set -- $* && [ "$BASH" ] && tput el >&2
   [ "$1" = -a ] && nb=-1 && shift
   [ "$1" = - ] && first="exit" && shift
@@ -207,7 +207,7 @@ __cd() {
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   # [ ! "$COMP_TYPE" = 63 ]   && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
-  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}" )" "${COMP_WORDS[1]}")" )
+  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort )" "${COMP_WORDS[1]}")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
@@ -242,7 +242,7 @@ function locatedir {
   shift $(($# - 1))
   (locate -r "$gr" 2>/dev/null|| locate "$gr") |awk -F'/' '/\/\.|^\/snap/{next}$NF ~ gr' gr=${1##*/} |while read file
   do
-    [ -d "$file" ] && echo "$file"
+    [ -d "$file" ] && printf "%s" "$file"
   done
 }
 
