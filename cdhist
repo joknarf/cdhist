@@ -174,56 +174,34 @@ function cdlw {
   _zle_do
 }
 
-_cd_unquote_str()
-{
-  typeset str="$1" p="" ret=""
-  while [ "$str" ];do
-    c=$(printf '%c' "$str")
-    str=${str#?}
-    [ "$c" = "'" ] && [ "$p" != '\' ] && p="$c" && continue
-    p="$c"
-    [ "$c" = '\' ] && continue
-    ret+="$c"
-  done
-  printf "%s\n" "$ret"
-}
-
 # cd autocompletion
 __cd() {
-  typeset row col var IFS
+  typeset row col var dir IFS
   # use bash_completion _cd or limited cdcomplete
   declare -F _cd >/dev/null && _cd "$@" || {
     type compopt &>/dev/null && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
-    dir="${COMP_WORDS[1]//\\ / }"
+    dir=$(eval printf %s ${COMP_WORDS[1]} 2>/dev/null || printf %s "${COMP_WORDS[1]//\'/}")
     [[ "$dir" = \~/* ]] && dir="$HOME${dir#\~}"
-    dir="${dir//\\$/"'$"}"
-    [[ "$dir" = *\'* ]] || while [[ "$dir" =~ [$][a-zA-Z_][a-zA-Z0-9_]* ]];do
-      var="$BASH_REMATCH"
-      dir="${dir/$var/$(eval 'printf "%s" "'"$var"'"')}"
-    done
-    dir="$(_cd_unquote_str "$dir")"
-    #printf '\n%s\n' "$dir"
     COMP_WORDS=( cd "$dir" )
-#    echo "$dir"
     [ "$dir" = ".." ] && dir="../"
     word="${dir##*/}"
     [[ "$dir" = */* ]] && dir="${dir%/*}" || dir='.'
     : ${dir:=/}
-#    echo "dir: $dir"
-#    echo "word: $word"
+#    echo "dir: $dir word: $word"
     IFS=$'\n'
     COMPREPLY=( $(\cd "$dir" >/dev/null 2>&1 && compgen -d -- "$word") ) 
     [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
-    [ "$dir" = / ] || dir="$dir/"
+    dir="${dir%/}/"
     [ "$dir" = ./ ] && [[ ${COMP_WORDS[1]} != ./* ]] && dir=""
+    [[ "$dir" = $HOME/* ]] && dir="${dir/$HOME/\~}"
     COMPREPLY=( $(printf "$dir%s\n" "${COMPREPLY[@]}") )
     IFS=$' \t\n'
     [ "${#COMPREPLY[@]}" = 1 ] && {
       COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
       COMPREPLY[0]="${COMPREPLY[0]%/}/"
     }
-    COMP_WORDS=( cd "$word" )
+    COMP_WORDS=( cd "$dir$word" )
   }
   [ ${#COMPREPLY[@]} -le 1 ] && return
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
@@ -235,6 +213,7 @@ __cd() {
   [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
   COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
   COMPREPLY[0]="${COMPREPLY[0]%/}/"
+  [[ "${COMPREPLY[0]}" = $HOME/* ]] && COMPREPLY[0]="${COMPREPLY[0]/$HOME/\~}"
   #tput el >&2
 }
 
