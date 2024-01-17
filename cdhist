@@ -34,10 +34,11 @@ touch ${CDHISTFILE:=~/.cd_history}
 : ${CDLBIND:='*'}
 : ${CDDOTBIND:=';'}
 : ${CDNBDIRS:=10}
+: ${CDCOMPLETE:=n}
 
 # change directory and updpate CDHISTFILE
 function cdpush {
-  typeset cdhf=${CDHISTFILE:-~/.cd_history}
+  typeset cdhf=${CDHISTFILE:-~/.cd_history} dir
   case "$1" in 
     --) shift; cdhist "$@"; return $?;;
     -)  [ "$2" ] && { cdhist "$@"; return $?; };;
@@ -45,11 +46,13 @@ function cdpush {
     ++) shift; cdsub 4 . "$@"; return $?;;
     ~*) set -- "$HOME${1#\~}";;
   esac
-  [ "$_cdpr" = 1 ] && {
-    printf "%q " "cd" "$@"
+  dir="$1"
+  [ "$_cdpr" ] && {
+    [ "$_cdpr" = 1 ] && printf "cd %q" "$dir"
+    [ "$_cdpr" = 2 ] && printf "$dir"
     return 0
   } || {
-    \cd "$@" || return $?
+    \cd "$dir" || return $?
   }
   printf "%s\n" "$PWD" >"$cdhf.tmp"
   grep -v "^$PWD$" "$cdhf" >>"$cdhf.tmp"
@@ -67,16 +70,27 @@ function cddelete
 
 function cdselect
 {
-  typeset dir nb="$1"
-  [ "$_cdpr" = 1 ] && {
+  typeset dir nb="$1" filter="$3"
+  [ "$_cdpr" ] && {
     [ "$BASH" ] && tput el >&2
     printf "\n" >&2
   }
-  dir=$(selector -P "$CDPOWERLINE" -m "$nb" -p cd -k _cd_keys -i "$2")
-  [ "$_cdpr" = 1 ] && {
+  dir=$(selector -P "$CDPOWERLINE" -m "$nb" -p cd -k _cd_keys -F "$filter" -i "$2")
+  [ "$_cdpr" ] && {
     tput cuu1 >&2
   }
   [ "$dir" ] && cdpush "$dir"
+}
+
+function _cdbrowse {
+  typeset dir="$1"
+
+  [[ $dir = ~* ]] && dir="$HOME${dir#\~}"
+  dir="${dir#../${PWD##*/}}"
+  : ${dir:=.}
+  _items="$(find -L "$dir/" -xdev -mindepth 1 -maxdepth 1 '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print |\
+    sed -e s"#^$HOME/#\~/#")"
+  _items_ori="$_items"
 }
 
 # selector custom keys
@@ -86,10 +100,27 @@ function _cd_keys
 
   case "$k" in
     $'\t') # tab
-      [[ $dir = ~* ]] && dir="$HOME${dir#\~}"
-      _items="$(find "$dir/" -xdev -mindepth 1 -maxdepth 1 '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print |\
-      sed -e s"#^$HOME/#\~/#")"
-      [ ! "$_items" ] && selected="$dir" && return 1
+      #_cdbrowse "$dir"
+      #[ ! "$_items" ] && selected="$dir" && return 1
+      selected="$dir"
+      return 1
+    ;;
+    '[C'|OC) # right
+      _cdbrowse "$dir"
+      [ "$_items" ] || _items="$dir"
+      return 0
+    ;;
+    '[D'|OD|l) # left
+      [[ "$dir" = */* ]] && dir="${dir%/*}/.." || dir="$dir${dir:+/}.."
+      #echo $dir
+      case "$dir" in
+        ./..|!(..|*/*)/..)   dir='..';;
+        ../!(..|*/*)/..) dir="${dir%../*/..}..";;
+        */*/..) dir="${dir%/*/..}";;
+        !(..)/..)   dir=".";;
+      esac
+      #echo "$dir"
+      _cdbrowse "$dir"
       return 0
     ;;
     '[19~'|$'\x04'|'[3~') # F8 Ctl-D Del
@@ -138,6 +169,20 @@ function cdlw {
   _zle_do
 }
 
+# cd autocompletion
+__cd() {
+  _cd "$@"
+  [ ${#COMPREPLY[@]} -le 1 ] && return
+  # [ ! "$COMP_TYPE" = 63 ] && return #tab-tab but... tab: COMP_TYPE=9
+  printf "\r" >&2
+  COMPREPLY=("$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}" )" "${COMP_WORDS[1]}")")
+  kill -WINCH $$
+  [ "${COMPREPLY[0]}" ] && COMPREPLY[0]+='/' || COMPREPLY=()
+}
+
+cdcomplete() {
+  [ "$BASH" ] && complete -o nospace -F __cd cd
+}
 
 # display/change to subdirs of cwd
 # cdsub <depth> [<pat> ...]
@@ -246,7 +291,7 @@ alias cd+='cdsub 1 .'
 alias cd++='cdsub 4 .'
 alias cdl=cdlocate
 _cdbind
-
+[ "$CDCOMPLETE" = y ] && cdcomplete
 ### selector from https://github.com/joknarf/selector
 
 # no proper way to restore tty on trap
@@ -373,16 +418,15 @@ function _domenu
     return 0
   }
   _items_ori="$_items"
-  filter=""
   tput civis
   stty -echo 2>/dev/null
   printf "\e[?7l" # nowrap
   : ${LINES:=$(tput lines)}
   [ "$_maxlines" -gt 2 ] || unset _maxlines
-  _showmenu "$prompt" "$_nsel" "$nbitems" ""
+  _showmenu "$prompt" "$_nsel" "$nbitems" "$filter"
   while true
   do
-    k=$(_readkey $o)
+    k="$(_readkey $o)"
     [ "$_keyfunc" ] && { # custom key control
       $_keyfunc "$k" # 0: managed / 1: managed exit / 2: not managed 
       case "$?" in
@@ -395,7 +439,7 @@ function _domenu
         1) break;;
       esac
     }
-    case $k in
+    case "$k" in
       '[A'|OA) #up
         filter="";_select "$prompt" "_nsel-1" "$nbitems" "$filter";;
       '[B'|OB) #down
@@ -499,7 +543,7 @@ function selector
         [ "$2" ] && _powerline="$2" || return 1
         ;;
       -F|--filter)
-        [ "$2" ] && filter="$2" || return 1
+        [ "$#" -ge 2 ] && filter="$2" || return 1
         ;;
       -a|--autofilter)
         [ "$2" ] && _autofilter="$2" || return 1
@@ -516,7 +560,7 @@ function selector
         printf "%s\n" "  -F, --filter          regexp pattern filter items"
         printf "%s\n" "  -P, --powerline       y or n, powerline symbol usage"
         printf "%s\n" "  -a, --autofilter      y or n, filter at keystrokes (default y)"
-        printf "%s\n" "  -d, --deletefunc      delete command to call on (F8/Ctl-D)"
+        printf "%s\n" "  -k, --keyfunc         Custom additional key function"
         return 1
         ;;
     esac
