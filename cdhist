@@ -45,7 +45,7 @@ function cdpush {
     -)  [ "$2" ] && { cdhist "$@"; return $?; };;
     +)  shift; cdsub 1 . "$@"; return $?;;
     ++) shift; cdsub 4 . "$@"; return $?;;
-    ~*) set -- "$HOME${1#\~}";;
+    ~*) set -- "$HOME"${1#\~};;
   esac
   dir="$1"
   [ "$_cdpr" ] && {
@@ -64,7 +64,7 @@ function cdpush {
 function cddelete
 {
   typeset cdhf=${CDHISTFILE:-~/.cd_history}
-  [[ "$1" = \~* ]] && set -- "$HOME${1#\~}"
+  [[ "$1" = \~* ]] && set -- "$HOME"${1#\~}
   grep -Fxv -- "$1" "$cdhf" >"$cdhf.tmp"
   [ -s "$cdhf.tmp" ] && \mv "$cdhf.tmp" "$cdhf"
 }
@@ -86,7 +86,7 @@ function cdselect
 function _cdbrowse {
   typeset dir="$1"
 
-  [[ $dir = \~* ]] && dir="$HOME${dir#\~}"
+  [[ $dir = \~* ]] && dir="$HOME"${dir#\~}
   dir="${dir#../${PWD##*/}}"
   : ${dir:=.}
   $(\cd "$dir" >/dev/null 2>&1) || return
@@ -112,7 +112,7 @@ function _cd_keys
       return 0
     ;;
     '[D'|OD) # left    
-      [[ "$dir" = \~* ]] && dir="$HOME${dir#\~}"
+      [[ "$dir" = \~* ]] && dir="$HOME"${dir#\~}
       [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
       : ${dir:=/}
       [ "$(\cd "$dir" >/dev/null;pwd)" = / ] && return 0
@@ -182,7 +182,7 @@ __cd() {
     type compopt &>/dev/null && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
     dir=$(eval printf %s ${COMP_WORDS[1]} 2>/dev/null || printf %s "${COMP_WORDS[1]//\'/}")
-    [[ "$dir" = \~/* ]] && dir="$HOME${dir#\~}"
+    [[ "$dir" = \~/* ]] && dir="$HOME"${dir#\~}
     COMP_WORDS=( cd "$dir" )
     [ "$dir" = ".." ] && dir="../"
     word="${dir##*/}"
@@ -194,7 +194,7 @@ __cd() {
     [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
     dir="${dir%/}/"
     [ "$dir" = ./ ] && [[ ${COMP_WORDS[1]} != ./* ]] && dir=""
-    [[ "$dir" = $HOME/* ]] && dir="${dir/$HOME/\~}"
+    [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
     COMPREPLY=( $(printf "$dir%s\n" "${COMPREPLY[@]}") )
     IFS=$' \t\n'
     [ "${#COMPREPLY[@]}" = 1 ] && {
@@ -213,7 +213,7 @@ __cd() {
   [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
   COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
   COMPREPLY[0]="${COMPREPLY[0]%/}/"
-  [[ "${COMPREPLY[0]}" = $HOME/* ]] && COMPREPLY[0]="${COMPREPLY[0]/$HOME/\~}"
+  [[ "${COMPREPLY[0]}" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
   #tput el >&2
 }
 
