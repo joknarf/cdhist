@@ -72,7 +72,7 @@ function cdselect
 {
   typeset dir nb="$1" filter="$3"
   [ "$_cdpr" ] && {
-    [ "$BASH" ] && tput el >&2
+    [ "$BASH" ] && [ "$_cdpr" = 1 ] && tput el >&2
     printf "\n" >&2
   }
   dir=$(selector -P "$CDPOWERLINE" -m "$nb" -p cd -k _cd_keys -F "$filter" -i "$2")
@@ -173,13 +173,17 @@ function cdlw {
 
 # cd autocompletion
 __cd() {
+  typeset row col
   _cd "$@"
   [ ${#COMPREPLY[@]} -le 1 ] && return
+  IFS='[;' read -rsd R -p $'\e[6n' _ row col
   # [ ! "$COMP_TYPE" = 63 ] && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
   COMPREPLY=("$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}" )" "${COMP_WORDS[1]}")")
-  kill -WINCH $$
+  #kill -WINCH $$
   [ "${COMPREPLY[0]}" ] && COMPREPLY[0]+='/' || COMPREPLY=()
+  tput cuf $((col-1)) >&2
+  tput el >&2
 }
 
 cdcomplete() {
