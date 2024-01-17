@@ -52,7 +52,7 @@ function cdpush {
     [ "$_cdpr" = 2 ] && printf "$dir"
     return 0
   } || {
-    \cd "$dir" || return $?
+    \cd "$@" || return $?
   }
   printf "%s\n" "$PWD" >"$cdhf.tmp"
   grep -v "^$PWD$" "$cdhf" >>"$cdhf.tmp"
@@ -88,7 +88,8 @@ function _cdbrowse {
   [[ $dir = ~* ]] && dir="$HOME${dir#\~}"
   dir="${dir#../${PWD##*/}}"
   : ${dir:=.}
-  _items="$(find -L "$dir/" -xdev -mindepth 1 -maxdepth 1 '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print |\
+  $(\cd "$dir" 2>/dev/null) || return
+  _items="$(find -L "$dir" -xdev -mindepth 1 -maxdepth 1 '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print 2>/dev/null|\
     sed -e s"#^$HOME/#\~/#")"
   _items_ori="$_items"
 }
@@ -100,27 +101,28 @@ function _cd_keys
 
   case "$k" in
     $'\t') # tab
-      #_cdbrowse "$dir"
-      #[ ! "$_items" ] && selected="$dir" && return 1
       selected="$dir"
       return 1
     ;;
     '[C'|OC) # right
       _cdbrowse "$dir"
       [ "$_items" ] || _items="$dir"
+      _last_nsel=$_nsel
       return 0
     ;;
-    '[D'|OD|l) # left        
+    '[D'|OD|l) # left    
+      [[ "$dir" = ~* ]] && dir="$HOME${dir#\~}"
       [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
-      #echo $dir
+      : ${dir:=/}
+      [ "$(\cd "$dir";pwd)" = / ] && return 0
       case "$dir" in
         .)   dir='..';;
-        ..|+(../)) dir="$dir/..";echo here;;
-        */*) dir="${dir%/*}";;
+        *(../)..) dir="$dir/..";;
+        */*) dir="${dir%/*}";: ${dir:=/};;
         *) dir='.';;
       esac
-      #echo "$dir"
       _cdbrowse "$dir"
+      _nsel=$_last_nsel
       return 0
     ;;
     '[19~'|$'\x04'|'[3~') # F8 Ctl-D Del
@@ -378,9 +380,7 @@ function _items_split
   while IFS= read -r item;do
     _aitems[$i]="$item"
     i=$((i+1))
-  done <<EOT
-$_items
-EOT
+  done <<<"$_items"
 }
 
 function _readkey
