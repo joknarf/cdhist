@@ -111,7 +111,7 @@ function _cd_keys
       [ "$_items" ] || _items="${dir%/}/"
       return 0
     ;;
-    '[D'|OD|l) # left    
+    '[D'|OD) # left    
       [[ "$dir" = ~* ]] && dir="$HOME${dir#\~}"
       [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
       : ${dir:=/}
