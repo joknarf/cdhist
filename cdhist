@@ -64,7 +64,7 @@ function cdpush {
 function cddelete
 {
   typeset cdhf=${CDHISTFILE:-~/.cd_history}
-  [[ "$1" = ~* ]] && set -- "$HOME${1#\~}"
+  [[ "$1" = \~* ]] && set -- "$HOME${1#\~}"
   grep -Fxv "$1" "$cdhf" >"$cdhf.tmp"
   [ -s "$cdhf.tmp" ] && \mv "$cdhf.tmp" "$cdhf"
 }
@@ -86,7 +86,7 @@ function cdselect
 function _cdbrowse {
   typeset dir="$1"
 
-  [[ $dir = ~* ]] && dir="$HOME${dir#\~}"
+  [[ $dir = \~* ]] && dir="$HOME${dir#\~}"
   dir="${dir#../${PWD##*/}}"
   : ${dir:=.}
   $(\cd "$dir" >/dev/null 2>&1) || return
@@ -112,7 +112,7 @@ function _cd_keys
       return 0
     ;;
     '[D'|OD) # left    
-      [[ "$dir" = ~* ]] && dir="$HOME${dir#\~}"
+      [[ "$dir" = \~* ]] && dir="$HOME${dir#\~}"
       [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
       : ${dir:=/}
       [ "$(\cd "$dir" >/dev/null;pwd)" = / ] && return 0
@@ -196,6 +196,7 @@ __cd() {
     type compopt &>/dev/null && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
     dir="${COMP_WORDS[1]//\\ / }"
+    [[ "$dir" = \~/* ]] && dir="$HOME${dir#\~}"
     dir="${dir//\\$/"'$"}"
     [[ "$dir" = *\'* ]] || while [[ "$dir" =~ [$][a-zA-Z_][a-zA-Z0-9_]* ]];do
       var="$BASH_REMATCH"
@@ -209,7 +210,6 @@ __cd() {
     word="${dir##*/}"
     [[ "$dir" = */* ]] && dir="${dir%/*}" || dir='.'
     : ${dir:=/}
-    [[ "$dir" = ~/* ]] && dir="$HOME${dir#~}"
 #    echo "dir: $dir"
 #    echo "word: $word"
     IFS=$'\n'
