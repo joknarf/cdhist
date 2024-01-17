@@ -89,7 +89,7 @@ function _cdbrowse {
   [[ $dir = ~* ]] && dir="$HOME${dir#\~}"
   dir="${dir#../${PWD##*/}}"
   : ${dir:=.}
-  $(\cd "$dir" 2>/dev/null) || return
+  $(\cd "$dir" >/dev/null 2>&1) || return
   _items="$(find -L "$dir" -xdev -mindepth 1 -maxdepth 1 '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print 2>/dev/null|\
     sed -e s"#^$HOME/#\~/#")"
   _items_ori="$_items"
@@ -106,16 +106,16 @@ function _cd_keys
       return 1
     ;;
     '[C'|OC) # right
-      _cdbrowse "$dir"
-      [ "$_items" ] || _items="$dir"
       _last_nsel=$_nsel
+      _cdbrowse "$dir"
+      [ "$_items" ] || _items="${dir%/}/"
       return 0
     ;;
     '[D'|OD|l) # left    
       [[ "$dir" = ~* ]] && dir="$HOME${dir#\~}"
       [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
       : ${dir:=/}
-      [ "$(\cd "$dir";pwd)" = / ] && return 0
+      [ "$(\cd "$dir" >/dev/null;pwd)" = / ] && return 0
       case "$dir" in
         .)   dir='..';;
         *(../)..) dir="$dir/..";;
@@ -123,7 +123,9 @@ function _cd_keys
         *) dir='.';;
       esac
       _cdbrowse "$dir"
-      _nsel=$_last_nsel
+      _force_nsel=$_last_nsel
+      unset _last_nsel
+      unset _last_filter
       return 0
     ;;
     '[19~'|$'\x04'|'[3~') # F8 Ctl-D Del
@@ -172,35 +174,67 @@ function cdlw {
   _zle_do
 }
 
+_cd_unquote_str()
+{
+  typeset str="$1" p="" ret=""
+  while [ "$str" ];do
+    c=$(printf '%c' "$str")
+    str=${str#?}
+    [ "$c" = "'" ] && [ "$p" != '\' ] && p="$c" && continue
+    p="$c"
+    [ "$c" = '\' ] && continue
+    ret+="$c"
+  done
+  printf "%s\n" "$ret"
+}
+
 # cd autocompletion
 __cd() {
-  typeset row col
+  typeset row col var IFS
+  # use bash_completion _cd or limited cdcomplete
   declare -F _cd >/dev/null && _cd "$@" || {
     type compopt &>/dev/null && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
     dir="${COMP_WORDS[1]//\\ / }"
+    dir="${dir//\\$/"'$"}"
+    [[ "$dir" = *\'* ]] || while [[ "$dir" =~ [$][a-zA-Z_][a-zA-Z0-9_]* ]];do
+      var="$BASH_REMATCH"
+      dir="${dir/$var/$(eval 'printf "%s" "'"$var"'"')}"
+    done
+    dir="$(_cd_unquote_str "$dir")"
+    #printf '\n%s\n' "$dir"
+    COMP_WORDS=( cd "$dir" )
+#    echo "$dir"
     [ "$dir" = ".." ] && dir="../"
     word="${dir##*/}"
     [[ "$dir" = */* ]] && dir="${dir%/*}" || dir='.'
+    : ${dir:=/}
+    [[ "$dir" = ~/* ]] && dir="$HOME${dir#~}"
+#    echo "dir: $dir"
+#    echo "word: $word"
     IFS=$'\n'
-    COMPREPLY=( $(\cd "$dir" 2>/dev/null && compgen -d -- "$word") ) 
+    COMPREPLY=( $(\cd "$dir" >/dev/null 2>&1 && compgen -d -- "$word") ) 
     [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
-    dir="$dir/"
+    [ "$dir" = / ] || dir="$dir/"
     [ "$dir" = ./ ] && [[ ${COMP_WORDS[1]} != ./* ]] && dir=""
     COMPREPLY=( $(printf "$dir%s\n" "${COMPREPLY[@]}") )
     IFS=$' \t\n'
-    [ "${#COMPREPLY[@]}" = 1 ] && COMPREPLY[0]+='/'
+    [ "${#COMPREPLY[@]}" = 1 ] && {
+      COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
+      COMPREPLY[0]="${COMPREPLY[0]%/}/"
+    }
+    COMP_WORDS=( cd "$word" )
   }
-  printf "=> %s\n" "${COMPREPLY[@]}" >/tmp/o
   [ ${#COMPREPLY[@]} -le 1 ] && return
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
-  # [ ! "$COMP_TYPE" = 63 ] && return #tab-tab but... tab: COMP_TYPE=9
+  # [ ! "$COMP_TYPE" = 63 ]   && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
   COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}" )" "${COMP_WORDS[1]}")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
-  COMPREPLY[0]+='/'
+  COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
+  COMPREPLY[0]="${COMPREPLY[0]%/}/"
   #tput el >&2
 }
 
@@ -452,9 +486,10 @@ function _domenu
       case "$?" in
         0) 
           _items_split "."
-          nbitems=${#_aitems[@]}
           filter=""
-          _showmenu "$prompt" "$_nsel" "$nbitems" ""
+          nbitems=${#_aitems[@]}
+          [ "$_force_nsel" ] && _nsel=$_force_nsel && unset _force_nsel
+          _showmenu "$prompt" "$_nsel" "$nbitems" "$filter"
           continue;;
         1) break;;
       esac
