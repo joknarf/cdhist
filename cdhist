@@ -56,7 +56,7 @@ function cdpush {
     \cd "$@" || return $?
   }
   printf "%s\n" "$PWD" >"$cdhf.tmp"
-  grep -v "^$PWD$" "$cdhf" >>"$cdhf.tmp"
+  grep -Fxv -- "$PWD" "$cdhf" >>"$cdhf.tmp"
   [ -s "$cdhf.tmp" ] && \mv "$cdhf.tmp" "$cdhf"
   return 0
 }
@@ -65,7 +65,7 @@ function cddelete
 {
   typeset cdhf=${CDHISTFILE:-~/.cd_history}
   [[ "$1" = \~* ]] && set -- "$HOME${1#\~}"
-  grep -Fxv "$1" "$cdhf" >"$cdhf.tmp"
+  grep -Fxv -- "$1" "$cdhf" >"$cdhf.tmp"
   [ -s "$cdhf.tmp" ] && \mv "$cdhf.tmp" "$cdhf"
 }
 
@@ -230,7 +230,7 @@ function cdsub {
   [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
   printf "%s" " Searching directories..." >&2
   cdselect "$CDNBDIRS" "$(find "$orig" -xdev -mindepth 1 -maxdepth $depth '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print |\
-    grep "$gr" 2>/dev/null;tput cub 25 >&2;tput el >&2)"
+    grep -- "$gr" 2>/dev/null;tput cub 25 >&2;tput el >&2)"
 }
 
 # use locate to get directories
@@ -407,7 +407,7 @@ function _items_split
 
   [ "$filter" ] && {
     _nsel=""
-    [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items="$(printf "%s" "$_items" |grep -- "$filter" 2>/dev/null|uniq)"
+    [[ "$filter" =~ ^[0-9]+$ ]] && _nsel=$filter || _items="$(printf "%s" "$_items" |grep -F -- "$filter" 2>/dev/null|uniq)"
   }
   [ "$_nsel" ] && _items="${_aitems[$_nsel]}"
   _nsel=1
