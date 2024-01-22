@@ -35,6 +35,7 @@ touch ${CDHISTFILE:=~/.cd_history}
 : ${CDDOTBIND:=';'}
 : ${CDNBDIRS:=10}
 : ${CDCOMPLETE:=n}
+[ "$BASH" ] && shopt -s extglob progcomp
 
 # change directory and updpate CDHISTFILE
 function cdpush {
@@ -174,12 +175,26 @@ function cdlw {
 # cd autocompletion
 __cd() {
   typeset row col
-  _cd "$@"
+  declare -F _cd >/dev/null && _cd "$@" || {
+    type compopt &>/dev/null && compopt -o filenames 2>/dev/null || \
+        compgen -f /non-existing-dir/ >/dev/null
+    dir="${COMP_WORDS[1]//\\ / }"
+    [ "$dir" = ".." ] && dir="../"
+    word="${dir##*/}"
+    [[ "$dir" = */* ]] && dir="${dir%/*}" || dir='.'
+    IFS=$'\n'
+    COMPREPLY=( $(\cd "$dir" 2>/dev/null && compgen -d -- "$word") ) 
+    [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
+    COMPREPLY=( $(printf "$dir/%s\n" "${COMPREPLY[@]}") )
+    IFS=$' \t\n'
+    [ "${#COMPREPLY[@]}" = 1 ] && COMPREPLY[0]+='/'
+  }
+  printf "=> %s\n" "${COMPREPLY[@]}" >/tmp/o
   [ ${#COMPREPLY[@]} -le 1 ] && return
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   # [ ! "$COMP_TYPE" = 63 ] && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
-  COMPREPLY=("$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}" )" "${COMP_WORDS[1]}")")
+  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}" )" "${COMP_WORDS[1]}")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
@@ -381,11 +396,9 @@ function _items_split
   }
   [ "$_nsel" ] && _items="${_aitems[$_nsel]}"
   _nsel=1
-  unset _aitems
-  while IFS= read -r item;do
-    _aitems[$i]="$item"
-    i=$((i+1))
-  done <<<"$_items"
+  IFS=$'\n'
+  [ "$ZSH_VERSION" ] && _aitems=( $_items ) || { _aitems=( _ $_items ); unset '_aitems[0]'; }
+  IFS=$' \t\n'
 }
 
 function _readkey
