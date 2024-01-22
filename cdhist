@@ -185,7 +185,9 @@ __cd() {
     IFS=$'\n'
     COMPREPLY=( $(\cd "$dir" 2>/dev/null && compgen -d -- "$word") ) 
     [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
-    COMPREPLY=( $(printf "$dir/%s\n" "${COMPREPLY[@]}") )
+    dir="$dir/"
+    [ "$dir" = ./ ] && [[ ${COMP_WORDS[1]} != ./* ]] && dir=""
+    COMPREPLY=( $(printf "$dir%s\n" "${COMPREPLY[@]}") )
     IFS=$' \t\n'
     [ "${#COMPREPLY[@]}" = 1 ] && COMPREPLY[0]+='/'
   }
