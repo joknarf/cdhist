@@ -84,13 +84,14 @@ function cdselect
 }
 
 function _cdbrowse {
-  typeset dir="$1"
+  typeset dir="$1" depth=${2:-1}
 
   [[ $dir = \~* ]] && dir="$HOME"${dir#\~}
   dir="${dir#../${PWD##*/}}"
   : ${dir:=.}
   $(\cd "$dir" >/dev/null 2>&1) || return
-  _items="$(find -L "$dir" -xdev -mindepth 1 -maxdepth 1 '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print 2>/dev/null|\
+  [ "$depth" = 4 ] && printf "Searching directories..." >&2
+  _items="$(find -L "$dir" -xdev -mindepth 1 -maxdepth $depth '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print 2>/dev/null|\
     sed -e s"#^$HOME/#\~/#")"
   _items_ori="$_items"
 }
@@ -126,6 +127,13 @@ function _cd_keys
       _force_nsel=$_last_nsel
       unset _last_nsel
       unset _last_filter
+      return 0
+    ;;
+    $'\x0c') # Ctl-L
+      [[ "$dir" = \~* ]] && dir="$HOME"${dir#\~}
+      [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
+      : ${dir:=/}
+      _cdbrowse "$dir" 4
       return 0
     ;;
     '[19~'|$'\x04'|'[3~') # F8 Ctl-D Del
