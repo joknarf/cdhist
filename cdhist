@@ -115,10 +115,10 @@ function _cd_keys
       [[ "$dir" = \~* ]] && dir="$HOME"${dir#\~}
       [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
       : ${dir:=/}
-      [ "$(\cd "$dir" >/dev/null;pwd)" = / ] && return 0
+      [ "$(\cd "$dir" >/dev/null;pwd)" = / ] && dir=/
       case "$dir" in
         .)   dir='..';;
-        *(../)..) dir="$dir/..";;
+        *(../)..|..) dir="$dir/..";;
         */*) dir="${dir%/*}";: ${dir:=/};;
         *) dir='.';;
       esac
@@ -179,7 +179,7 @@ __cd() {
   typeset row col var dir IFS
   # use bash_completion _cd or limited cdcomplete
   declare -F _cd >/dev/null && _cd "$@" || {
-    type compopt &>/dev/null && compopt -o filenames 2>/dev/null || \
+    type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
     dir=$(eval printf %s ${COMP_WORDS[1]} 2>/dev/null || printf %s "${COMP_WORDS[1]//\'/}")
     [[ "$dir" = \~/* ]] && dir="$HOME"${dir#\~}
