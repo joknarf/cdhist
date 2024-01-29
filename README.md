@@ -1,8 +1,10 @@
 # cdhist
-cd history/subdir/locatedir navigation (bash / ksh / zsh)
+
+Navigate through directories / history of visited directories using arrow keys from command line.
+Compatibility : bash / ksh / zsh
 (compatible macos / debian / centos / solaris / alpine ...)
 
-* simple cd history, alias builtin cd to add cd history  
+* cd history, alias builtin cd to add cd history  
   * rapidily swich to already visited directories
 
 * can use locate (mlocate/plocate) to rapidly cd to any directory
@@ -15,9 +17,16 @@ cd history/subdir/locatedir navigation (bash / ksh / zsh)
 
 ![cdhist2](https://github.com/joknarf/cdhist/assets/10117818/e8eb130c-9cc8-4a1d-904d-034b6d1f93b4)
 
-* using bash/zsh in emacs or vi mode:
-  * cdhist directly available with `Esc+!` (directory pattern can be put on command line)
-  * cdlocate available with `Esc+*` (put directory pattern on command line then `Esc+*`)
+* using bash/zsh in emacs or vi mode, key binding is available as shortcuts:
+
+|key        | action                                                |
+|-----------|-------------------------------------------------------|
+|Shift-Up   | cd history                                            | 
+|Shift-Right| navigate from current directory                       |
+|Shift-Left | go to parent dir (cd ..)                              |
+
+directory pattern can be put on command line before hitting shortcut
+* cdlocate available with `Esc+*` (put directory pattern on command line then `Esc+*`)
 
 * using bash `<tab>` cd auto completion can be enabled:
   * setting env variable `CDCOMPLETE=y` before sourcing `cdhist`
@@ -53,27 +62,27 @@ $ cdl <pat>...
 |`CDNBDIRS`   | Number of directories in history to display (default 10)          |
 |`CDINITDIRS` | Directory list (\n separated) to initialize CDHISTFILE if empty   |
 |`CDPOWERLINE`| set to "n" to disable powerline symbol usage                      |
-|`CDHISTBIND` | bind key to cdhist (Esc-key/Alt-key) default to "!"               |
+|`CDHISTBIND` | bind key to cdhist                                                |
+|`CDDOTBIND`  | bind key to navigate from current dir                             |
 |`CDLBIND`    | bind key to cdlocate (Esc-key/Alt-key) default to "*"             |
 
-`cd -- -a` or `cd-- -a` will display full history
+## keys when in menu
 
-## keys in menu
-
-|key       | action                                                |
-|----------|-------------------------------------------------------|
-|Down      | select nex item                                       | 
-|Up        | select prev item                                      |
-|End       | select last item                                      |
-|Home      | select first item                                     | 
-|Right     | browse selected directory                             |
-|Left      | browse upper directory                                |
-|Ctl-L     | browse selected directory with subdirectories depth 4 |
-|PgUp/Ctl-F| next page                                             |
-|PgDn/Ctl-B| previous page                                         |
-|Ctl-X/Esc | exit                                                  |
-|Ctl-A     | use all screen to display menu                        |
-|Enter/Tab | go to directory                                       |
+|key        | action                                                |
+|---------- |-------------------------------------------------------|
+|Down       | select nex item                                       | 
+|Up         | select prev item                                      |
+|End        | select last item                                      |
+|Home       | select first item                                     | 
+|Right      | browse selected directory                             |
+|Left       | browse upper directory                                |
+|Shift-Right| browse selected directory with subdirectories depth 4 |
+|Shift-Left | back to only show subdirectories depth 1              |
+|PgUp/Ctl-F | next page                                             |
+|PgDn/Ctl-B | previous page                                         |
+|Ctl-X/Esc  | exit                                                  |
+|Ctl-A      | use all screen to display menu                        |
+|Enter/Tab  | go to directory                                       |
 
 * filter pattern can be applied entering text (ext regexp)
 * selection can be done entering item number

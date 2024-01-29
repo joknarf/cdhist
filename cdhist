@@ -30,9 +30,9 @@ unalias cd 2>/dev/null
 type typeset >/dev/null 2>/dev/null || alias typeset=local # ash
 touch ${CDHISTFILE:=~/.cd_history}
 : ${CDPOWERLINE:=y}
-: ${CDHISTBIND:='!'}
+: ${CDHISTBIND:='[1;2A'}
 : ${CDLBIND:='*'}
-: ${CDDOTBIND:=';'}
+: ${CDDOTBIND:='[1;2C'}
 : ${CDNBDIRS:=10}
 : ${CDCOMPLETE:=n}
 [ "$BASH" ] && shopt -s extglob progcomp
@@ -129,11 +129,18 @@ function _cd_keys
       unset _last_filter
       return 0
     ;;
-    $'\x0c') # Ctl-L
+    '[1;2C') # shift right
       [[ "$dir" = \~* ]] && dir="$HOME"${dir#\~}
       [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
       : ${dir:=/}
       _cdbrowse "$dir" 4
+      return 0
+    ;;
+    '[1;2D') # shift right
+      [[ "$dir" = \~* ]] && dir="$HOME"${dir#\~}
+      [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
+      : ${dir:=/}
+      _cdbrowse "$dir" 1
       return 0
     ;;
     '[19~'|$'\x04'|'[3~') # F8 Ctl-D Del
@@ -149,7 +156,7 @@ function _cd_keys
 function cdhist {
   typeset gr=. nb=${CDNBDIRS:-10} cdhf=${CDHISTFILE:-~/.cd_history} first='' awk=awk dir
   [ ! -s "$cdhf" ] && printf "%s" "$CDINITDIRS" >$cdhf
-  [ "$_cdpr" = 1 ] && set -- $* && [ "$BASH" ] && tput el >&2
+  [ "$_cdpr" = 1 ] && [ "$BASH" ] && tput el >&2
   [ "$1" = -a ] && nb=-1 && shift
   [ "$1" = - ] && first="exit" && shift
   [ "$1" = -l ] && shift && { cdlocate "$@"; return; }
@@ -159,29 +166,39 @@ function cdhist {
   [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
   cdselect "$nb" "$($awk '$0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)"
 }
+[ "$ZSH_VERSION" ] && {
+  function _zle_do {
+    zle -Rc
+    zle end-of-line
+    zle vi-insert
+    [ "$BUFFER" ] && zle accept-line
+  }
 
-function _zle_do {
-  zle -Rc
-  zle end-of-line
-  zle vi-insert
-  [ "$BUFFER" ] && zle accept-line
+  function _cdhistw {
+    BUFFER=$(_cdpr=1 cdhist "$BUFFER")
+    _zle_do
+  }
+
+  function _cddotw {
+    BUFFER=$(_cdpr=1 cdhist + "$BUFFER")
+    _zle_do
+  }
+
+  function _cdlw {
+    BUFFER=$(_cdpr=1 cdhist -l "$BUFFER")
+    _zle_do
+  }
+
+  function _cdlastw {
+    BUFFER=$(_cdpr=1 cdhist - "$BUFFER")
+    _zle_do
+  }
+
+  function _cdupw {
+    BUFFER="\cd .."
+    _zle_do
+  }
 }
-
-function cdhistw {
-  BUFFER=$(_cdpr=1 cdhist "$BUFFER")
-  _zle_do
-}
-
-function cddotw {
-  BUFFER=$(_cdpr=1 cdhist + "$BUFFER")
-  _zle_do
-}
-
-function cdlw {
-  BUFFER=$(_cdpr=1 cdhist -l "$BUFFER")
-  _zle_do
-}
-
 # cd autocompletion
 _cdhist_cd() {
   typeset row col var dir IFS
@@ -237,7 +254,7 @@ function cdsub {
   [ -x /bin/nawk ] && awk=nawk
   [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
   printf "%s" " Searching directories..." >&2
-  cdselect "$CDNBDIRS" "$(find "$orig" -xdev -mindepth 1 -maxdepth $depth '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print |\
+  cdselect "$CDNBDIRS" "$(find -L "$orig" -xdev -mindepth 1 -maxdepth $depth '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print |\
     grep -- "$gr" 2>/dev/null;tput cub 25 >&2;tput el >&2)"
 }
 
@@ -291,8 +308,15 @@ function _cdbind {
     bind -m vi-insert '"\e'"$CDHISTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
     bind -m vi-command '"'"$CDHISTBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
+    bind -m vi-insert '"\e[1;2B": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-command '"\e[1;2B": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+
+
     bind -m vi-insert '"\e'"$CDDOTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
     bind -m vi-command '"'"$CDDOTBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+
+    bind -m vi-insert '"\e[1;2D": "\eddi\\cd ..\015"'
+    bind -m vi-command '"\e[1;2D": "ddi\\cd ..\015"'
 
     #bind -m vi-insert '"\e!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
     #bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
@@ -313,20 +337,34 @@ function _cdbind {
     # \C-k kill-line
     # safe param quoting (takes only current line until first simple quote)
     bind -m emacs-standard '"\e'"$CDHISTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"\e[1;2B": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+
     bind -m emacs-standard '"\e'"$CDDOTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
     bind -m emacs-standard '"\e'"$CDLBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"\e[1;2D": "\\cd ..\015"'
 
   }
   [ "$ZSH_VERSION" ] && {
-    zle -N cdhistw
-    zle -N cddotw
-    zle -N cdlw
-    bindkey -M vicmd '!' cdhistw
-    bindkey -M emacs '\e!' cdhistw
-    bindkey -M vicmd ';' cddotw
-    bindkey -M emacs '\e;' cddotw
-    bindkey -M vicmd '*' cdlw
-    bindkey -M emacs '\e*' cdlw
+    zle -N _cdhistw
+    zle -N _cddotw
+    zle -N _cdlw
+    zle -N _cdlastw
+    zle -N _cdupw
+    bindkey -M vicmd "\e$CDHISTBIND" _cdhistw
+    bindkey -M viins "\e$CDHISTBIND" _cdhistw
+    bindkey -M emacs "\e$CDHISTBIND" _cdhistw
+    bindkey -M vicmd "\e[1;2B" _cdlastw
+    bindkey -M viins "\e[1;2B" _cdlastw
+    bindkey -M emacs "\e[1;2B" _cdlastw
+    bindkey -M vicmd "\e$CDDOTBIND" _cddotw
+    bindkey -M viins "\e$CDDOTBIND" _cddotw
+    bindkey -M emacs "\e$CDDOTBIND" _cddotw
+    bindkey -M vicmd "\e[1;2D" _cdupw
+    bindkey -M viins "\e[1;2D" _cdupw
+    bindkey -M emacs "\e[1;2D" _cdupw
+    bindkey -M vicmd '\e*' _cdlw
+    bindkey -M viins '\e*' _cdlw
+    bindkey -M emacs '\e*' _cdlw
   }
 }
 alias cd=cdpush
