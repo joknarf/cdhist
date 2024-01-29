@@ -261,7 +261,7 @@ function cdsub {
 # use locate to get directories
 function locatedir {
   typeset file gr awk=awk
-  type locate >/dev/null 2>/dev/null || printf "no locate command found" >&2 && return
+  type locate >/dev/null 2>/dev/null || { printf "no locate command found" >&2;return; }
   [ ! "$1" ] && printf "need to give pattern" >&2 && return
   [ -x /bin/nawk ] && awk=nawk
   gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
