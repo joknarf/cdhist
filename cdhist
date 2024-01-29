@@ -92,7 +92,7 @@ function _cdbrowse {
   $(\cd "$dir" >/dev/null 2>&1) || return
   [ "$depth" = 4 ] && printf "Searching directories..." >&2
   _items="$(find -L "$dir" -xdev -mindepth 1 -maxdepth $depth '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print 2>/dev/null|\
-    sed -e s"#^$HOME/#\~/#")"
+    sed -e s"#^$HOME/#\~/#"|sort)"
   _items_ori="$_items"
 }
 
@@ -183,7 +183,7 @@ function cdlw {
 }
 
 # cd autocompletion
-__cd() {
+_cdhist_cd() {
   typeset row col var dir IFS
   # use bash_completion _cd or limited cdcomplete
   declare -F _cd >/dev/null && _cd "$@" || {
@@ -215,7 +215,7 @@ __cd() {
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   # [ ! "$COMP_TYPE" = 63 ]   && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
-  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort )" "${COMP_WORDS[1]}")" )
+  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "${COMP_WORDS[1]}")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
@@ -226,7 +226,7 @@ __cd() {
 }
 
 cdcomplete() {
-  [ "$BASH" ] && complete -o nospace -F __cd cd
+  [ "$BASH" ] && complete -o nospace -F _cdhist_cd cd
 }
 
 # display/change to subdirs of cwd
