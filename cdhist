@@ -31,7 +31,7 @@ type typeset >/dev/null 2>/dev/null || alias typeset=local # ash
 touch ${CDHISTFILE:=~/.cd_history}
 : ${CDPOWERLINE:=y}
 : ${CDHISTBIND:='[1;2A'}
-: ${CDLBIND:='*'}
+: ${CDLBIND:='[1;5A'}
 : ${CDDOTBIND:='[1;2C'}
 : ${CDNBDIRS:=10}
 : ${CDCOMPLETE:=n}
@@ -175,22 +175,22 @@ function cdhist {
   }
 
   function _cdhistw {
-    BUFFER=$(_cdpr=1 cdhist "$BUFFER")
+    BUFFER="$(_cdpr=1 cdhist "$BUFFER")"
     _zle_do
   }
 
   function _cddotw {
-    BUFFER=$(_cdpr=1 cdhist + "$BUFFER")
+    BUFFER="$(_cdpr=1 cdhist + "$BUFFER")"
     _zle_do
   }
 
   function _cdlw {
-    BUFFER=$(_cdpr=1 cdhist -l "$BUFFER")
+    BUFFER="$(_cdpr=1 cdhist -l "$BUFFER")"
     _zle_do
   }
 
   function _cdlastw {
-    BUFFER=$(_cdpr=1 cdhist - "$BUFFER")
+    BUFFER="$(_cdpr=1 cdhist - "$BUFFER")"
     _zle_do
   }
 
@@ -261,7 +261,8 @@ function cdsub {
 # use locate to get directories
 function locatedir {
   typeset file gr awk=awk
-  [ "$1" ] || return
+  type locate >/dev/null 2>/dev/null || printf "no locate command found" >&2 && return
+  [ ! "$1" ] && printf "need to give pattern" >&2 && return
   [ -x /bin/nawk ] && awk=nawk
   gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
   shift $(($# - 1))
@@ -362,9 +363,9 @@ function _cdbind {
     bindkey -M vicmd "\e[1;2D" _cdupw
     bindkey -M viins "\e[1;2D" _cdupw
     bindkey -M emacs "\e[1;2D" _cdupw
-    bindkey -M vicmd '\e*' _cdlw
-    bindkey -M viins '\e*' _cdlw
-    bindkey -M emacs '\e*' _cdlw
+    bindkey -M vicmd "\e$CDLBIND" _cdlw
+    bindkey -M viins "\e$CDLBIND" _cdlw
+    bindkey -M emacs "\e$CDLBIND" _cdlw
   }
 }
 alias cd=cdpush

@@ -21,14 +21,15 @@ Compatibility : bash / ksh / zsh
 
 |key        | action                                                |
 |-----------|-------------------------------------------------------|
-|Shift-Up   | cd history                                            | 
+|Shift-Up   | cd history                                            |
+|Shift-Down | return to last directory matching pattern             |
 |Shift-Right| navigate from current directory                       |
 |Shift-Left | go to parent dir (cd ..)                              |
+|Ctl-Up     | search directories matching pattern in locate db      |
 
 directory pattern can be put on command line before hitting shortcut
-* cdlocate available with `Esc+*` (put directory pattern on command line then `Esc+*`)
 
-* using bash `<tab>` cd auto completion can be enabled:
+* using bash `<tab>` cd auto completion can be enabled for `cd` command:
   * setting env variable `CDCOMPLETE=y` before sourcing `cdhist`
 
 # usage
@@ -64,7 +65,7 @@ $ cdl <pat>...
 |`CDPOWERLINE`| set to "n" to disable powerline symbol usage                      |
 |`CDHISTBIND` | bind key to cdhist                                                |
 |`CDDOTBIND`  | bind key to navigate from current dir                             |
-|`CDLBIND`    | bind key to cdlocate (Esc-key/Alt-key) default to "*"             |
+|`CDLBIND`    | bind key to cdlocate                                              |
 
 ## keys when in menu
 
@@ -84,5 +85,5 @@ $ cdl <pat>...
 |Ctl-A      | use all screen to display menu                        |
 |Enter/Tab  | go to directory                                       |
 
-* filter pattern can be applied entering text (ext regexp)
+* filter pattern can be applied entering text
 * selection can be done entering item number
