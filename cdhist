@@ -207,7 +207,7 @@ _cdhist_cd() {
     type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
     [[ "$dir" = \~* ]] && dir="$(IFS=;eval printf %s '~'$(printf %q ${dir#\~}))"
-    [[ "$dir" = \$* ]] && dir="$(IFS=;eval printf %s '$'$(printf %q ${dir#\$}))"
+    [[ "$dir" = \$[A-Za-z0-9_]* ]] && dir="$(IFS=;eval printf %s '$'$(printf %q ${dir#\$}))"
     COMP_WORDS=( cd "$dir" )
     [ "$dir" = ".." ] && dir="../"
     word="${dir##*/}"
