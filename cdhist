@@ -201,13 +201,13 @@ function cdhist {
 }
 # cd autocompletion
 _cdhist_cd() {
-  typeset row col var dir IFS
+  typeset row col var dir="${COMP_WORDS[1]}" IFS
   # use bash_completion _cd or limited cdcomplete
   declare -F _cd >/dev/null && _cd "$@" || {
     type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
-    dir=$(eval printf %s ${COMP_WORDS[1]} 2>/dev/null || printf %s "${COMP_WORDS[1]//\'/}")
-    [[ "$dir" = \~/* ]] && dir="$HOME"${dir#\~}
+    [[ "$dir" = \~* ]] && dir="$(IFS=;eval printf %s '~'$(printf %q ${dir#\~}))"
+    [[ "$dir" = \$* ]] && dir="$(IFS=;eval printf %s '$'$(printf %q ${dir#\$}))"
     COMP_WORDS=( cd "$dir" )
     [ "$dir" = ".." ] && dir="../"
     word="${dir##*/}"
