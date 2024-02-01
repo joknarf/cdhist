@@ -19,13 +19,13 @@ Compatibility : bash / ksh / zsh
 
 * using bash/zsh in emacs or vi mode, key binding is available as shortcuts:
 
-|key        | action                                                |
-|-----------|-------------------------------------------------------|
-|Shift-Up   | cd history                                            |
-|Shift-Down | return to last directory matching pattern             |
-|Shift-Right| navigate from current directory                       |
-|Shift-Left | go to parent dir (cd ..)                              |
-|Ctl-Up     | search directories matching pattern in locate db      |
+|key        | action                                                               |
+|-----------|----------------------------------------------------------------------|
+|<kbd>Shift</kbd>+<kbd>⇧</kbd>   | cd history                                      |
+|<kbd>Shift</kbd>+<kbd>⇩</kbd>   | return to last directory matching pattern       |
+|<kbd>Shift</kbd>+<kbd>⇨</kbd>   | navigate from current directory                 |
+|<kbd>Shift</kbd>+<kbd>⇦</kbd>   | go to parent dir (cd ..)                        |
+|<kbd>Ctrl</kbd>+<kbd>⇦</kbd>     | search directories matching pattern in locate db|
 
 directory pattern can be put on command line before hitting shortcut
 
@@ -69,21 +69,21 @@ $ cdl <pat>...
 
 ## keys when in menu
 
-|key        | action                                                |
-|---------- |-------------------------------------------------------|
-|Down       | select nex item                                       | 
-|Up         | select prev item                                      |
-|End        | select last item                                      |
-|Home       | select first item                                     | 
-|Right      | browse selected directory                             |
-|Left       | browse upper directory                                |
-|Shift-Right| browse selected directory with subdirectories depth 4 |
-|Shift-Left | back to only show subdirectories depth 1              |
-|PgUp/Ctl-F | next page                                             |
-|PgDn/Ctl-B | previous page                                         |
-|Ctl-X/Esc  | exit                                                  |
-|Ctl-A      | use all screen to display menu                        |
-|Enter/Tab  | go to directory                                       |
+|key                             | action                                                |
+|--------------------------------|-------------------------------------------------------|
+|<kbd>⇩</kbd>                    | select next item                                      | 
+|<kbd>⇧</kbd>                    | select prev item                                      |
+|<kbd>End</kbd>                  | select last item                                      |
+|<kbd>Home</kbd>                 | select first item                                     | 
+|<kbd>⇨</kbd>                    | browse selected directory                             |
+|<kbd>⇦</kbd>                    | browse parent directory                               |
+|<kbd>Shift</kbd>+<kbd>⇨</kbd>   | browse selected directory with subdirectories depth 4 |
+|<kbd>Shift</kbd>+<kbd>⇦</kbd>   | back to only show subdirectories depth 1              |
+|<kbd>PgUp</kbd>/<kbd>Ctl-F</kbd>| next page                                             |
+|<kbd>PgDn</kbd>/<kbd>Ctl-B</kbd>| previous page                                         |
+|<kbd>Esc</kbd>                  | exit                                                  |
+|<kbd>Ctrl</kbd>+<kbd>A</kbd>    | use all screen to display menu                        |
+|<kbd>Enter</kbd>/<kbd>Tab</kbd> | go to directory                                       |
 
 * filter pattern can be applied entering text
 * selection can be done entering item number
