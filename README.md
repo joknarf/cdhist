@@ -32,6 +32,28 @@ directory pattern can be put on command line before hitting shortcut
 * using bash `<tab>` cd auto completion can be enabled for `cd` command:
   * setting env variable `CDCOMPLETE=y` before sourcing `cdhist`
 
+## keys when in menu
+
+|key                             | action                                                |
+|--------------------------------|-------------------------------------------------------|
+|<kbd>⇩</kbd>                    | select next item                                      | 
+|<kbd>⇧</kbd>                    | select prev item                                      |
+|<kbd>End</kbd>                  | select last item                                      |
+|<kbd>Home</kbd>                 | select first item                                     | 
+|<kbd>⇨</kbd>                    | browse selected directory                             |
+|<kbd>⇦</kbd>                    | browse parent directory                               |
+|<kbd>Shift</kbd>+<kbd>⇨</kbd>   | browse selected directory with subdirectories depth 4 |
+|<kbd>Shift</kbd>+<kbd>⇦</kbd>   | back to only show subdirectories depth 1              |
+|<kbd>PgUp</kbd>/<kbd>Ctl-F</kbd>| next page                                             |
+|<kbd>PgDn</kbd>/<kbd>Ctl-B</kbd>| previous page                                         |
+|<kbd>Esc</kbd>                  | exit                                                  |
+|<kbd>Ctrl</kbd>+<kbd>A</kbd>    | use all screen to display menu                        |
+|<kbd>Enter</kbd>/<kbd>Tab</kbd> | go to directory                                       |
+
+* filter pattern can be applied entering text
+* selection can be done entering item number
+
+
 # usage
 
 ```
@@ -67,23 +89,3 @@ $ cdl <pat>...
 |`CDDOTBIND`  | bind key to navigate from current dir                             |
 |`CDLBIND`    | bind key to cdlocate                                              |
 
-## keys when in menu
-
-|key                             | action                                                |
-|--------------------------------|-------------------------------------------------------|
-|<kbd>⇩</kbd>                    | select next item                                      | 
-|<kbd>⇧</kbd>                    | select prev item                                      |
-|<kbd>End</kbd>                  | select last item                                      |
-|<kbd>Home</kbd>                 | select first item                                     | 
-|<kbd>⇨</kbd>                    | browse selected directory                             |
-|<kbd>⇦</kbd>                    | browse parent directory                               |
-|<kbd>Shift</kbd>+<kbd>⇨</kbd>   | browse selected directory with subdirectories depth 4 |
-|<kbd>Shift</kbd>+<kbd>⇦</kbd>   | back to only show subdirectories depth 1              |
-|<kbd>PgUp</kbd>/<kbd>Ctl-F</kbd>| next page                                             |
-|<kbd>PgDn</kbd>/<kbd>Ctl-B</kbd>| previous page                                         |
-|<kbd>Esc</kbd>                  | exit                                                  |
-|<kbd>Ctrl</kbd>+<kbd>A</kbd>    | use all screen to display menu                        |
-|<kbd>Enter</kbd>/<kbd>Tab</kbd> | go to directory                                       |
-
-* filter pattern can be applied entering text
-* selection can be done entering item number
