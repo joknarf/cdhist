@@ -19,13 +19,13 @@ Compatibility : bash / ksh / zsh
 
 * using bash/zsh in emacs or vi mode, key binding is available as shortcuts:
 
-|key        | action                                                               |
-|-----------|----------------------------------------------------------------------|
-|<kbd>Shift</kbd>+<kbd>⇩</kbd>   | cd history                                      |
-|<kbd>Shift</kbd>+<kbd>⇧</kbd>   | return to last directory matching pattern       |
-|<kbd>Shift</kbd>+<kbd>⇨</kbd>   | navigate from current directory                 |
-|<kbd>Shift</kbd>+<kbd>⇦</kbd>   | go to parent dir (cd ..)                        |
-|<kbd>Ctrl</kbd>+<kbd>⇩</kbd>     | search directories matching pattern in locate db|
+|key        | action                                                                    |
+|-----------|---------------------------------------------------------------------------|
+|<kbd>Shift</kbd>+<kbd>⇩</kbd>   | cd history                                           |
+|<kbd>Shift</kbd>+<kbd>⇧</kbd>   | return to last directory in history matching pattern |
+|<kbd>Shift</kbd>+<kbd>⇨</kbd>   | navigate from current directory                      |
+|<kbd>Shift</kbd>+<kbd>⇦</kbd>   | go to parent dir (cd ..)                             |
+|<kbd>Ctrl</kbd>+<kbd>⇩</kbd>    | search directories matching pattern in locate db     |
 
 directory pattern can be put on command line before hitting shortcut
 
