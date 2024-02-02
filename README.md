@@ -1,19 +1,15 @@
 # cdhist
 
-Navigate through directories / history of visited directories using arrow keys from command line.
-Compatibility : bash / ksh / zsh
+Navigate interactively through directories / history of visited directories using arrow keys from command line.  
+Compatibility : bash / ksh / zsh  
 (compatible macos / debian / centos / solaris / alpine ...)
 
 * cd history, alias builtin cd to add cd history  
   * rapidily swich to already visited directories
-
-* can use locate (mlocate/plocate) to rapidly cd to any directory
-
-* display / choose subdirectories of cwd
-
-* navigate interactively into directories using left/right arrow keys (bash/zsh)
-
-* cd autocompletion with interactive menu for bash
+* use locate (mlocate/plocate) to rapidly cd to any directory
+* navigate interactively into directories using left/right arrow keys in menu
+  * directly from command line without any cd command using shift-arrow keys (bash/zsh)
+* cd autocompletion with interactive menu (bash)
 
 ![cdhist2](https://github.com/joknarf/cdhist/assets/10117818/e8eb130c-9cc8-4a1d-904d-034b6d1f93b4)
 
