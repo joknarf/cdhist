@@ -33,13 +33,13 @@ touch ${CDHISTFILE:=~/.cd_history}
 : ${CDNBDIRS:=10}
 : ${CDCOMPLETE:=n}
 [[ "$(uname -r)" = *-ish ]] && {
-  : ${CDHISTBIND:='!'}
-  : ${CDLBIND:='*'}
-  : ${CDDOTBIND:=';'}
+  : ${CDHISTBIND:='\e!'}
+  : ${CDLBIND:='\e*'}
+  : ${CDDOTBIND:='\e;'}
 }
-: ${CDHISTBIND:='[1;2B'}
-: ${CDLBIND:='[1;5B'}
-: ${CDDOTBIND:='[1;2C'}
+: ${CDHISTBIND:='\e[1;2B'}
+: ${CDLBIND:='\e[1;5B'}
+: ${CDDOTBIND:='\e[1;2C'}
 
 [ "$BASH" ] && shopt -s extglob progcomp
 
@@ -312,14 +312,14 @@ function _cdbind {
     # - cut end of line
     # - expand line
 
-    bind -m vi-insert '"\e'"$CDHISTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-insert '"'"$CDHISTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
     bind -m vi-command '"'"$CDHISTBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
     bind -m vi-insert '"\e[1;2A": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
     bind -m vi-command '"\e[1;2A": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
 
-    bind -m vi-insert '"\e'"$CDDOTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-insert '"'"$CDDOTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
     bind -m vi-command '"'"$CDDOTBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
     bind -m vi-insert '"\e[1;2D": "\eddi\\cd ..\015"'
@@ -327,7 +327,7 @@ function _cdbind {
 
     #bind -m vi-insert '"\e!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
     #bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
-    bind -m vi-insert '"\e'"$CDLBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-insert '"'"$CDLBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
     bind -m vi-command '"'"$CDLBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
     bind -m emacs-standard '"\C-xr": redraw-current-line'
@@ -343,11 +343,11 @@ function _cdbind {
     # \C-e end-of-line
     # \C-k kill-line
     # safe param quoting (takes only current line until first simple quote)
-    bind -m emacs-standard '"\e'"$CDHISTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"'"$CDHISTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
     bind -m emacs-standard '"\e[1;2A": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
 
-    bind -m emacs-standard '"\e'"$CDDOTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
-    bind -m emacs-standard '"\e'"$CDLBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"'"$CDDOTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"'"$CDLBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
     bind -m emacs-standard '"\e[1;2D": "\\cd ..\015"'
 
   }
@@ -357,21 +357,21 @@ function _cdbind {
     zle -N _cdlw
     zle -N _cdlastw
     zle -N _cdupw
-    bindkey -M vicmd "\e$CDHISTBIND" _cdhistw
-    bindkey -M viins "\e$CDHISTBIND" _cdhistw
-    bindkey -M emacs "\e$CDHISTBIND" _cdhistw
+    bindkey -M vicmd "$CDHISTBIND" _cdhistw
+    bindkey -M viins "$CDHISTBIND" _cdhistw
+    bindkey -M emacs "$CDHISTBIND" _cdhistw
     bindkey -M vicmd "\e[1;2A" _cdlastw
     bindkey -M viins "\e[1;2A" _cdlastw
     bindkey -M emacs "\e[1;2A" _cdlastw
-    bindkey -M vicmd "\e$CDDOTBIND" _cddotw
-    bindkey -M viins "\e$CDDOTBIND" _cddotw
-    bindkey -M emacs "\e$CDDOTBIND" _cddotw
+    bindkey -M vicmd "$CDDOTBIND" _cddotw
+    bindkey -M viins "$CDDOTBIND" _cddotw
+    bindkey -M emacs "$CDDOTBIND" _cddotw
     bindkey -M vicmd "\e[1;2D" _cdupw
     bindkey -M viins "\e[1;2D" _cdupw
     bindkey -M emacs "\e[1;2D" _cdupw
-    bindkey -M vicmd "\e$CDLBIND" _cdlw
-    bindkey -M viins "\e$CDLBIND" _cdlw
-    bindkey -M emacs "\e$CDLBIND" _cdlw
+    bindkey -M vicmd "$CDLBIND" _cdlw
+    bindkey -M viins "$CDLBIND" _cdlw
+    bindkey -M emacs "$CDLBIND" _cdlw
   }
 }
 alias cd=cdpush
