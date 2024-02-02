@@ -11,7 +11,7 @@ Compatibility : bash / ksh / zsh
 
 * display / choose subdirectories of cwd
 
-* navigate interactively into directories using left/right arrows
+* navigate interactively into directories using left/right arrow keys (bash/zsh)
 
 * cd autocompletion with interactive menu for bash
 
