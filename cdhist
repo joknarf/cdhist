@@ -30,11 +30,17 @@ unalias cd 2>/dev/null
 type typeset >/dev/null 2>/dev/null || alias typeset=local # ash
 touch ${CDHISTFILE:=~/.cd_history}
 : ${CDPOWERLINE:=y}
+: ${CDNBDIRS:=10}
+: ${CDCOMPLETE:=n}
+[[ "$(uname -r)" = *-ish ]] && {
+  : ${CDHISTBIND:='!'}
+  : ${CDLBIND:='*'}
+  : ${CDDOTBIND:=';'}
+}
 : ${CDHISTBIND:='[1;2B'}
 : ${CDLBIND:='[1;5B'}
 : ${CDDOTBIND:='[1;2C'}
-: ${CDNBDIRS:=10}
-: ${CDCOMPLETE:=n}
+
 [ "$BASH" ] && shopt -s extglob progcomp
 
 # change directory and updpate CDHISTFILE
