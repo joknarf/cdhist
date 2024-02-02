@@ -17,7 +17,7 @@ Compatibility : bash / ksh / zsh
 
 |key        | action                                                                    |
 |-----------|---------------------------------------------------------------------------|
-|<kbd>Shift</kbd>+<kbd>⇩</kbd>   | cd history                                           |
+|<kbd>Shift</kbd>+<kbd>⇩</kbd>   | cd history menu                                      |
 |<kbd>Shift</kbd>+<kbd>⇧</kbd>   | return to last directory in history matching pattern |
 |<kbd>Shift</kbd>+<kbd>⇨</kbd>   | navigate from current directory                      |
 |<kbd>Shift</kbd>+<kbd>⇦</kbd>   | go to parent dir (cd ..)                             |
@@ -40,8 +40,8 @@ directory pattern can be put on command line before hitting shortcut
 |<kbd>⇦</kbd>                    | browse parent directory                               |
 |<kbd>Shift</kbd>+<kbd>⇨</kbd>   | browse selected directory with subdirectories depth 4 |
 |<kbd>Shift</kbd>+<kbd>⇦</kbd>   | back to only show subdirectories depth 1              |
-|<kbd>PgUp</kbd>/<kbd>Ctl-F</kbd>| next page                                             |
-|<kbd>PgDn</kbd>/<kbd>Ctl-B</kbd>| previous page                                         |
+|<kbd>Shift</kdb>+<kbd>⇩</kbd>/<kbd>PgUp</kbd>/<kbd>Ctl</kbd>+<kbd>F</kbd>| next page    |
+|<kbd>Shift</kdb>+<kbd>⇧</kbd>/<kbd>PgDn</kbd>/<kbd>Ctl</kbd>+<kbd>B</kbd>| previous page|
 |<kbd>Esc</kbd>                  | exit                                                  |
 |<kbd>Ctrl</kbd>+<kbd>A</kbd>    | use all screen to display menu                        |
 |<kbd>Enter</kbd>/<kbd>Tab</kbd> | go to directory                                       |
