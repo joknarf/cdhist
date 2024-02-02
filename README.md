@@ -41,6 +41,7 @@ directory pattern can be put on command line before hitting shortcut
 |<kbd>Shift</kbd>+<kbd>⇦</kbd>   | back to only show subdirectories depth 1              |
 |<kbd>Shift</kdb>+<kbd>⇩</kbd>/<kbd>PgUp</kbd>/<kbd>Ctl</kbd>+<kbd>F</kbd>| next page    |
 |<kbd>Shift</kdb>+<kbd>⇧</kbd>/<kbd>PgDn</kbd>/<kbd>Ctl</kbd>+<kbd>B</kbd>| previous page|
+|<kbd>Del</kbd>/<kbd>F8</kbd>    | delete directory entry in history                     |
 |<kbd>Esc</kbd>                  | exit                                                  |
 |<kbd>Ctrl</kbd>+<kbd>A</kbd>    | use all screen to display menu                        |
 |<kbd>Enter</kbd>/<kbd>Tab</kbd> | go to directory                                       |
