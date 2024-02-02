@@ -30,8 +30,8 @@ unalias cd 2>/dev/null
 type typeset >/dev/null 2>/dev/null || alias typeset=local # ash
 touch ${CDHISTFILE:=~/.cd_history}
 : ${CDPOWERLINE:=y}
-: ${CDHISTBIND:='[1;2A'}
-: ${CDLBIND:='[1;5A'}
+: ${CDHISTBIND:='[1;2B'}
+: ${CDLBIND:='[1;5B'}
 : ${CDDOTBIND:='[1;2C'}
 : ${CDNBDIRS:=10}
 : ${CDCOMPLETE:=n}
@@ -261,8 +261,8 @@ function cdsub {
 # use locate to get directories
 function locatedir {
   typeset file gr awk=awk
-  type locate >/dev/null 2>/dev/null || { printf "no locate command found" >&2;return; }
-  [ ! "$1" ] && printf "need to give pattern" >&2 && return
+  type locate >/dev/null 2>/dev/null || { printf "no locate command found" >&2;sleep 0.7;return; }
+  [ ! "$1" ] && printf "need to give pattern" >&2 && sleep 0.7 && return
   [ -x /bin/nawk ] && awk=nawk
   gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
   shift $(($# - 1))
@@ -309,8 +309,8 @@ function _cdbind {
     bind -m vi-insert '"\e'"$CDHISTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
     bind -m vi-command '"'"$CDHISTBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
-    bind -m vi-insert '"\e[1;2B": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-    bind -m vi-command '"\e[1;2B": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-insert '"\e[1;2A": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
+    bind -m vi-command '"\e[1;2A": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
 
     bind -m vi-insert '"\e'"$CDDOTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
@@ -338,7 +338,7 @@ function _cdbind {
     # \C-k kill-line
     # safe param quoting (takes only current line until first simple quote)
     bind -m emacs-standard '"\e'"$CDHISTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
-    bind -m emacs-standard '"\e[1;2B": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+    bind -m emacs-standard '"\e[1;2A": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
 
     bind -m emacs-standard '"\e'"$CDDOTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
     bind -m emacs-standard '"\e'"$CDLBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
@@ -354,9 +354,9 @@ function _cdbind {
     bindkey -M vicmd "\e$CDHISTBIND" _cdhistw
     bindkey -M viins "\e$CDHISTBIND" _cdhistw
     bindkey -M emacs "\e$CDHISTBIND" _cdhistw
-    bindkey -M vicmd "\e[1;2B" _cdlastw
-    bindkey -M viins "\e[1;2B" _cdlastw
-    bindkey -M emacs "\e[1;2B" _cdlastw
+    bindkey -M vicmd "\e[1;2A" _cdlastw
+    bindkey -M viins "\e[1;2A" _cdlastw
+    bindkey -M emacs "\e[1;2A" _cdlastw
     bindkey -M vicmd "\e$CDDOTBIND" _cddotw
     bindkey -M viins "\e$CDDOTBIND" _cddotw
     bindkey -M emacs "\e$CDDOTBIND" _cddotw

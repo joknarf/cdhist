@@ -21,15 +21,15 @@ Compatibility : bash / ksh / zsh
 
 |key        | action                                                               |
 |-----------|----------------------------------------------------------------------|
-|<kbd>Shift</kbd>+<kbd>⇧</kbd>   | cd history                                      |
-|<kbd>Shift</kbd>+<kbd>⇩</kbd>   | return to last directory matching pattern       |
+|<kbd>Shift</kbd>+<kbd>⇩</kbd>   | cd history                                      |
+|<kbd>Shift</kbd>+<kbd>⇧</kbd>   | return to last directory matching pattern       |
 |<kbd>Shift</kbd>+<kbd>⇨</kbd>   | navigate from current directory                 |
 |<kbd>Shift</kbd>+<kbd>⇦</kbd>   | go to parent dir (cd ..)                        |
-|<kbd>Ctrl</kbd>+<kbd>⇦</kbd>     | search directories matching pattern in locate db|
+|<kbd>Ctrl</kbd>+<kbd>⇩</kbd>     | search directories matching pattern in locate db|
 
 directory pattern can be put on command line before hitting shortcut
 
-* using bash `<tab>` cd auto completion can be enabled for `cd` command:
+* using bash, `<tab>` cd auto completion can be enabled for `cd` command:
   * setting env variable `CDCOMPLETE=y` before sourcing `cdhist`
 
 ## keys when in menu
