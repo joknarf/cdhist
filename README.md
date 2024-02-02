@@ -4,10 +4,9 @@ Navigate interactively through directories / history of visited directories usin
 Compatibility : bash / ksh / zsh  
 (compatible macos / debian / centos / solaris / alpine ...)
 
-* cd history, alias builtin cd to add cd history  
-  * rapidily swich to already visited directories
+* rapidily swich to already visited directories using interactive menu
 * use locate (mlocate/plocate) to rapidly cd to any directory
-* navigate interactively into directories using left/right arrow keys in menu
+* navigate interactively into directories/history using left/right arrow keys in menu
   * directly from command line without any cd command using shift-arrow keys (bash/zsh)
 * cd autocompletion with interactive menu (bash)
 
