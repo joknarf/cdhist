@@ -201,7 +201,7 @@ function cdhist {
   }
 
   function _cdupw {
-    BUFFER="\cd .."
+    BUFFER="cd .."
     _zle_do
   }
 }
@@ -249,7 +249,7 @@ _cdhist_cd() {
 }
 
 cdcomplete() {
-  [ "$BASH" ] && complete -o nospace -F _cdhist_cd cd
+  [ "$BASH" ] && builtin complete -o nospace -F _cdhist_cd cd
 }
 
 # display/change to subdirs of cwd
@@ -322,8 +322,8 @@ function _cdbind {
     bind -m vi-insert '"'"$CDDOTBIND"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
     bind -m vi-command '"'"$CDDOTBIND"'": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
 
-    bind -m vi-insert '"\e[1;2D": "\eddi\\cd ..\015"'
-    bind -m vi-command '"\e[1;2D": "ddi\\cd ..\015"'
+    bind -m vi-insert '"\e[1;2D": "\eddicd ..\015"'
+    bind -m vi-command '"\e[1;2D": "ddicd ..\015"'
 
     #bind -m vi-insert '"\e!": ".\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
     #bind -m vi-command '"!": "a.\C-xk$(_cdpr=1 cdhist \C-y\C-h)\C-xx\C-xr\015"'
@@ -348,7 +348,7 @@ function _cdbind {
 
     bind -m emacs-standard '"'"$CDDOTBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
     bind -m emacs-standard '"'"$CDLBIND"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdlocate '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
-    bind -m emacs-standard '"\e[1;2D": "\\cd ..\015"'
+    bind -m emacs-standard '"\e[1;2D": "cd ..\015"'
 
   }
   [ "$ZSH_VERSION" ] && {
@@ -384,6 +384,15 @@ _cdbind
 [ "$CDCOMPLETE" = y ] && cdcomplete
 ### selector from https://github.com/joknarf/selector
 
+#!/bin/bash
+# selector menu
+# Author: Franck Jouvanceau
+
+# Icons for -o filenames, can be overriden using env variables to fit terminal font
+: ${SELECTOR_FOLDER_ICON:=} # 🖿 🗀 📁 📂 🖿         
+: ${SELECTOR_FILE_ICON:=} #  🗎            🗋 🖹  
+
+
 # no proper way to restore tty on trap
 function _ctrl_c
 {
@@ -406,12 +415,12 @@ function _menuprompt
 
 function _showmenu 
 {
-  typeset prompt="$1" nsel="$2" nbitems="$3" filter="$4" item i min max sel lines
+  typeset prompt="$1" nsel="$2" nbitems="$3" filter="$4" item i min max sel lines icon path
 
   _menuprompt "$prompt" "$nbitems" "$filter"
   w=$nbitems;w=${#w}
-  lines=${_maxlines:-$((LINES-1))}
-  [ $lines -ge $LINES ] && lines=$((LINES-1))
+  lines=${_maxlines:-$LINES}
+  [ $lines -ge $LINES ] && lines=$(($LINES-1))
   min=$(($nsel-$lines+2))
   [ "$min" -le 0 ] && min=1
   max=$(($min+$lines-2))
@@ -424,10 +433,16 @@ function _showmenu
     item="${_aitems[$i]}"
     [[ $i -ge $min ]] || continue
     [[ $i -le $max ]] || break
+    icon=''
+    [ "$_sel_option" = filenames ] && {
+      [[ "$item" = \~/* ]] && path="$HOME/"${item#\~/} || path="$item"
+      if [ -d "$path" ] ;then icon="$SELECTOR_FOLDER_ICON "
+      else [ -e "$path" -o -L "$path" ] && icon="$SELECTOR_FILE_ICON ";fi
+    }
     if [[ $nsel == "$i" ]]; then 
-      printf "$sel" $i "$item"
+      printf "$sel" $i "$icon$item"
     else
-      printf "\n\e[32m %${w}s  \e[94m%s\e[0m" $i "$item"
+      printf "\n\e[32m %${w}s  \e[94m%s\e[0m" $i "$icon$item"
     fi
     tput el #clear end of line
   done
@@ -446,8 +461,8 @@ function _select
 {
   typeset prompt="$1" newsel="$2" nbitems="$3" filter="$4" lines
 
-  lines=${_maxlines:-$((LINES-1))}
-  [ $lines -ge $LINES ] && lines=$((LINES-1))
+  lines=${_maxlines:-$LINES}
+  [ $lines -ge $LINES ] && lines=$(($LINES-1))
   _nsel=$(($newsel))
   [ $_nsel -lt 1 ] && _nsel=1
   [ $_nsel -ge $nbitems ] && _nsel=$nbitems
@@ -466,6 +481,7 @@ function _items_split
   [ "$_nsel" ] && _items="${_aitems[$_nsel]}"
   _nsel=1
   IFS=$'\n'
+  # ZSH array index starts at 1
   [ "$ZSH_VERSION" ] && _aitems=( $_items ) || { _aitems=( _ $_items ); unset '_aitems[0]'; }
   IFS=$' \t\n'
 }
@@ -483,7 +499,7 @@ function _readkey
     [ ! "$k" ] && key=${key:-$'\x1b'} && break
     key+="$k"
     case "$key" in
-    '['[A-H]|'['*'~'|O[A-S]|'[1;2'[P-S]) break;;
+      '['[A-H]|'['*'~'|O[A-S]|'[1;2'[P-S]) break;;
     esac
   done
   printf "%s" "$key"
@@ -515,15 +531,17 @@ function _domenu
   do
     k="$(_readkey $o)"
     [ "$_keyfunc" ] && { # custom key control
-      $_keyfunc "$k" # 0: managed / 1: managed exit / 2: not managed 
+      $_keyfunc "$k" # 0: already managed / 1: managed exit / 2: default / 3: skip default
       case "$?" in
         0) 
           _items_split "."
           filter=""
           nbitems=${#_aitems[@]}
           _select "$prompt" "${_force_nsel:-1}" "$nbitems" "$filter"
+          unset _force_nsel
           continue;;
         1) break;;
+        3) continue;;
       esac
     }
     case "$k" in
@@ -535,7 +553,7 @@ function _domenu
         filter="";_select "$prompt" "1" "$nbitems" "$filter";;
       '[F'|'[C'|OC) #end or arrowright
         filter="";_select "$prompt" "nbitems" "$nbitems" "$filter";;
-      '[6~'|$'\x06'|'[1;2B') #pagedn Ctl-F shift-dn
+      '[6~'|$'\x06'|'[1;2B') #pagedn Ctl-F shift-down
         filter="";_select "$prompt" "_nsel+lines-1" "$nbitems" "$filter";;
       '[5~'|$'\x02'|'[1;2A') #pageup Ctl-B shift-up
         filter="";_select "$prompt" "_nsel-lines+1" "$nbitems" "$filter";;
@@ -612,6 +630,7 @@ function selector
   _autofilter=y
   _powerline=y
   _keyfunc=""
+  _sel_option=""
   while [ $# -gt 0 ]; do
     case "$1" in
       -p|--prompt)
@@ -638,6 +657,9 @@ function selector
       -k|--keyfunc)
         [ "$2" ] && _keyfunc="$2" || return 1
         ;;
+      -o|--option)
+        [ "$2" ] && _sel_option="$2" || return 1
+        ;;
       *)
         printf "usage: selector [-p <prompt>] -i <items>|-f <itemfile> [-P <y|n>] [-k <keyfunc>]\n"
         printf "args :\n"
@@ -658,9 +680,7 @@ function selector
   LC_ALL=$__selector_lc _domenu "$prompt" "$filter" >&2
   trap - INT
   stty $_stty_ori 2>/dev/null
-  unset _items
-  unset _maxlines
-  unset _autofilter
+  unset _items _maxlines _autofilter _keufunc _sel_option
   [ "$selected" ] && printf "%s" "$selected" && return 0
   return 1
 }
