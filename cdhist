@@ -263,7 +263,7 @@ function cdsub {
   [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
   printf "%s" " Searching directories..." >&2
   cdselect "$CDNBDIRS" "$(find -L "$orig" -xdev -mindepth 1 -maxdepth $depth '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print |\
-    grep -- "$gr" 2>/dev/null;tput cub 25 >&2;tput el >&2)"
+    sort -u |grep -- "$gr" 2>/dev/null;tput cub 25 >&2;tput el >&2)"
 }
 
 # use locate to get directories
