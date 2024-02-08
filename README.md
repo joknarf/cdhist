@@ -15,6 +15,17 @@ Compatibility : bash / ksh / zsh
 * using bash/zsh in emacs or vi mode, key binding is available as shortcuts:
   * default key binding with <kbd>Shift</kbd>+<kbd>Arrows</kbd> or <kbd>Ctrl</kbd>+<kbd>Arrows</kbd> (can be overridden using CD*BIND variables)
 
+<div align="center">
+ 
+|Left                     | Up/Down                             | Right                       |
+|:-----------------------:|:-----------------------------------:|:---------------------------:|
+|                         |  previous dir in history            |                             |
+|                         | <img width="50px" src="https://github.com/joknarf/cdhist/assets/10117818/10ac2573-49fc-4ed5-8a6e-cce931c55ae2">| |
+| <img width="50px" src="https://github.com/joknarf/cdhist/assets/10117818/015131c5-8d8d-4c0d-8d44-a876fa6f2fb5"> |  <img width="50px" src="https://github.com/joknarf/cdhist/assets/10117818/fe034fdc-dea5-49fa-be30-8f0bd9341208"> | <img width="50px" src="https://github.com/joknarf/cdhist/assets/10117818/1d254f15-050e-4ff9-9f5d-002e9ff4802f"> |
+|  parent dir (..)         | dir history browser                | dir browser                 |
+
+
+
 |key                                           | action                                               |
 |----------------------------------------------|------------------------------------------------------|
 |<kbd>Shift</kbd>+<kbd>⇩</kbd>                 | cd history menu                                      |
@@ -23,6 +34,7 @@ Compatibility : bash / ksh / zsh
 |<kbd>Shift</kbd>+<kbd>⇦</kbd>                 | go to parent dir (cd ..)                             |
 |<kbd>Ctrl</kbd>+<kbd>Shift</kbd><kbd>⇩</kbd>  | search directories matching pattern in locate db     |
 
+</div>
 directory pattern can be put on command line before hitting shortcut
 
 * using bash, `<tab>` cd auto completion can be enabled for `cd` command:
