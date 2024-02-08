@@ -13,14 +13,15 @@ Compatibility : bash / ksh / zsh
 ![cdhist2](https://github.com/joknarf/cdhist/assets/10117818/e8eb130c-9cc8-4a1d-904d-034b6d1f93b4)
 
 * using bash/zsh in emacs or vi mode, key binding is available as shortcuts:
+  * default key binding with <kbd>Shift</kbd>+<kbd>Arrows</kbd> or <kbd>Ctrl</kbd>+<kbd>Arrows</kbd> (can be overridden using CD*BIND variables)
 
-|key        | action                                                                    |
-|-----------|---------------------------------------------------------------------------|
-|<kbd>Shift</kbd>+<kbd>⇩</kbd>   | cd history menu                                      |
-|<kbd>Shift</kbd>+<kbd>⇧</kbd>   | return to last directory in history matching pattern |
-|<kbd>Shift</kbd>+<kbd>⇨</kbd>   | navigate from current directory                      |
-|<kbd>Shift</kbd>+<kbd>⇦</kbd>   | go to parent dir (cd ..)                             |
-|<kbd>Ctrl</kbd>+<kbd>⇩</kbd>    | search directories matching pattern in locate db     |
+|key                                           | action                                               |
+|----------------------------------------------|------------------------------------------------------|
+|<kbd>Shift</kbd>+<kbd>⇩</kbd>                 | cd history menu                                      |
+|<kbd>Shift</kbd>+<kbd>⇧</kbd>                 | return to last directory in history matching pattern |
+|<kbd>Shift</kbd>+<kbd>⇨</kbd>                 | navigate from current directory                      |
+|<kbd>Shift</kbd>+<kbd>⇦</kbd>                 | go to parent dir (cd ..)                             |
+|<kbd>Ctrl</kbd>+<kbd>Shift</kbd><kbd>⇩</kbd>  | search directories matching pattern in locate db     |
 
 directory pattern can be put on command line before hitting shortcut
 
@@ -84,4 +85,6 @@ $ cdl <pat>...
 |`CDHISTBIND` | bind key to cdhist                                                |
 |`CDDOTBIND`  | bind key to navigate from current dir                             |
 |`CDLBIND`    | bind key to cdlocate                                              |
+|`CDUPIND`    | bind key to cd ..                                                 |
+|`CDLASTBIND` | bind key to cdhist last dir matching text                         |
 
