@@ -335,7 +335,7 @@ function _cdbind {
     for k in $CDLASTBIND ;do
       bind -m vi-insert '"'"$k"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
       bind -m vi-command '"'"$k"'"": "A'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
-      bind -m emacs-standard '"'"$K"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
+      bind -m emacs-standard '"'"$k"'": "\C-e'"'"'\C-a.\C-a\C-xs'"'"'\C-xm\C-a\C-xd\C-xc\C-b.\C-xk$(_cdpr=1 cdhist - '"'"'\C-y\C-h'"'"')\C-k\C-a\C-xx\C-e\C-xr\015"'
     done
     for k in $CDDOTBIND ;do
       bind -m vi-insert '"'"$k"'": "\eA'"'"'\eI.\eI\C-xs'"'"'\C-xm\e0xi\C-xc\ei.\C-xk$(_cdpr=1 cdhist + '"'"'\C-y\C-h'"'"')\C-xe\eI\C-xx\eA\C-xr\015"'
