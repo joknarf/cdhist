@@ -24,7 +24,8 @@ Compatibility : bash / ksh / zsh
 | <img width="50px" src="https://github.com/joknarf/cdhist/assets/10117818/015131c5-8d8d-4c0d-8d44-a876fa6f2fb5"> |  <img width="50px" src="https://github.com/joknarf/cdhist/assets/10117818/fe034fdc-dea5-49fa-be30-8f0bd9341208"> | <img width="50px" src="https://github.com/joknarf/cdhist/assets/10117818/1d254f15-050e-4ff9-9f5d-002e9ff4802f"> |
 |  parent dir (..)         | dir history browser                | dir browser                 |
 
-
+directory pattern can be put on command line before hitting shortcut to filter result  
+putting on command line : `work` and hitting <kbd>Shift</kbd>+<kbd>⇧</kbd> will bring you to last visited directory containing `work`
 
 |key                                           | action                                               |
 |----------------------------------------------|------------------------------------------------------|
@@ -35,7 +36,6 @@ Compatibility : bash / ksh / zsh
 |<kbd>Ctrl</kbd>+<kbd>Shift</kbd><kbd>⇩</kbd>  | search directories matching pattern in locate db     |
 
 </div>
-directory pattern can be put on command line before hitting shortcut
 
 * using bash, `<tab>` cd auto completion can be enabled for `cd` command:
   * setting env variable `CDCOMPLETE=y` before sourcing `cdhist`
