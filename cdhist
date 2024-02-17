@@ -253,7 +253,7 @@ _cdhist_cd() {
   COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "$word")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
-  [ ! "${COMPREPLY[0]}" ] && compopt +o filenames -o nospace 2>/dev/null && COMPREPLY=( "$word" ) && return
+  [ ! "${COMPREPLY[0]}" ] && { compopt +o filenames -o nospace 2>/dev/null; COMPREPLY=( "$word" ); return; }
   COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
   COMPREPLY[0]="${COMPREPLY[0]%/}/"
   [[ "${COMPREPLY[0]}" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
