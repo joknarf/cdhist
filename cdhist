@@ -236,14 +236,24 @@ _cdhist_cd() {
     }
     COMP_WORDS=( cd "$dir$word" )
   }
-  [ ${#COMPREPLY[@]} -le 1 ] && return
+  [ ${#COMPREPLY[@]} = 1 ] && return
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
+  [ ${#COMPREPLY[@]} = 0 ] && {
+    printf '\nNot found !\r'
+    sleep 0.2
+    tput el
+    tput cuu1
+    tput cuf $((col-1)) >&2
+    return
+  }
+  word="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   # [ ! "$COMP_TYPE" = 63 ]   && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
-  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "${COMP_WORDS[1]}")" )
+  # longest common prefix
+  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "$word")" )
   #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
-  [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
+  [ ! "${COMPREPLY[0]}" ] && compopt +o filenames -o nospace 2>/dev/null && COMPREPLY=( "$word" ) && return
   COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
   COMPREPLY[0]="${COMPREPLY[0]%/}/"
   [[ "${COMPREPLY[0]}" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
