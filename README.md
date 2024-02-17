@@ -10,6 +10,11 @@ Compatibility : bash / ksh / zsh
   * directly from command line without any cd command using shift-arrow keys (bash/zsh)
 * cd autocompletion with interactive menu (bash)
 
+for a complete next-gen shell experience, see also these projects:
+* [nerdps1](https://github.com/joknarf/nerdps1) : auto-transportable dynamic PS1 prompt (you can see it in the demo)
+* [redo](https://github.com/joknarf/redo) : replacement of shell history command search (Ctrl+R or Esc+/) with interactive menu
+* [complete-ng](https://github.com/joknarf/complete-ng) : nextgen bash completion with interactive menu
+
 ![demo](https://github.com/joknarf/cdhist/assets/10117818/ad3dc445-ba78-401e-9e46-ca87e73fdb3b)
 
 * using bash/zsh in emacs or vi mode, key binding is available as shortcuts:
