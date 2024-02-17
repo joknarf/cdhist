@@ -10,7 +10,7 @@ Compatibility : bash / ksh / zsh
   * directly from command line without any cd command using shift-arrow keys (bash/zsh)
 * cd autocompletion with interactive menu (bash)
 
-![cdhist2](https://github.com/joknarf/cdhist/assets/10117818/e8eb130c-9cc8-4a1d-904d-034b6d1f93b4)
+![demo](https://github.com/joknarf/cdhist/assets/10117818/ad3dc445-ba78-401e-9e46-ca87e73fdb3b)
 
 * using bash/zsh in emacs or vi mode, key binding is available as shortcuts:
   * default key binding with <kbd>Shift</kbd>+<kbd>Arrows</kbd> or <kbd>Ctrl</kbd>+<kbd>Arrows</kbd> (can be overridden using CD*BIND variables)
