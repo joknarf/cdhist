@@ -1,5 +1,5 @@
 >  As another project called `cdhist` on github, decided to rename this project `seedee`  
->  Now, the updated tool can be found [here](https://github.com/joknarf/seedee)
+>  Now, the updated tool can be found [here](https://github.com/joknarf/seedee)  
 >  This repository won't we updated anymore
 
 # cdhist is now [seedee](https://github.com/joknarf/seedee)
